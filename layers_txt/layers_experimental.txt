@@ -2,7 +2,7 @@
   "layers": [
     {
       "type": "LayerGroup",
-      "title": "提供実験",
+      "title": "ベクトルタイル提供実験",
       "iconUrl": "",
       "open": false,
       "toggleall": false,
