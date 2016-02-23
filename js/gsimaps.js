@@ -20,13 +20,14 @@ var CONFIG = {};
 // (CONFIG.layers = null;に変更すると、同階層のlayers.txtを読込)
 CONFIG.layerBase          = ['./layers_txt/layers0.txt'];
 CONFIG.layerBaseDefaultID = "std";
-CONFIG.layerBaseFolder    = "背景地図";
+CONFIG.layerBaseFolder    = "ベースマップ";
 CONFIG.layerBaseFolderSYS = "GSI.MAP.BASE";
 CONFIG.layers = [
 	 './layers_txt/layers1.txt'
 	,'./layers_txt/layers2.txt'
 	,'./layers_txt/layers3.txt'
 	,'./layers_txt/layers4.txt'
+	,'./layers_txt/layers5.txt'
     , './layers_txt/layers_experimental.txt'
 ];
 
@@ -4810,7 +4811,7 @@ GSI.Dialog = L.Class.extend( {
 GSI.LayerTreeDialog = GSI.Dialog.extend( {
 
 	options : {
-		title : '表示できる情報'
+		title : '情報リスト'
 	},
 	initialize : function(mapLayerList,cocoTileLayer, options)
 	{
@@ -8390,12 +8391,12 @@ GSI.ShareDialog = GSI.Dialog.extend( {
 
 		this._settingContent.append( ul );
 
-		this._settingContent.append( $( '<h3>' ).html( '表示できる情報設定' ) );
+		this._settingContent.append( $( '<h3>' ).html( '情報リスト設定' ) );
 
 		ul = $( '<ul>' );
 
-		// 表示できる情報
-		item = __createItem( this,'表示できる情報を開く' );
+		// 情報リスト
+		item = __createItem( this,'情報リストを開く' );
 		ul.append( item.li );
 		this._visibleLayerTreeDlgCheck = item.checkbox;
 
@@ -8502,6 +8503,8 @@ GSI.ViewListDialog = GSI.Dialog.extend( {
         this._ButtonImgAdd = $("<img>").attr({ 'src' : './image/system/add.png' }).css({ 'position':'absolute','left':'5px','bottom':'5px','cursor':'pointer','opacity':'1'});
         this._ButtonTxtAdd = $("<a>").css({"position":"absolute",'left':'24px','bottom':'2px','cursor':'pointer'}).html("追加");
 		
+        this._RbtnTxtAdd = $("<a>").css({"position":"absolute",'right':'4px','bottom':'2px','cursor':'pointer'}).addClass('resetbutton').html("リセット");
+		
 		var frameRange            = $( '<div>' ).css({ 'position':'absolute','right':'5px','bottom':'5px','opacity':'1'});
         /*
         this._ButtonRangeSwitch   = new GSI.OnOffSwitch( {className:'onoff', checked:this.cocoTileLayer.getVisible(), title: ""} );
@@ -8520,6 +8523,8 @@ GSI.ViewListDialog = GSI.Dialog.extend( {
 
         frame.append( this._ButtonImgAdd );
         frame.append( this._ButtonTxtAdd );
+        frame.append( this._RbtnTxtAdd );
+
 		frame.append( frameRange );
         /*
 		frame.append( this._removeAllButton );
@@ -8531,6 +8536,7 @@ GSI.ViewListDialog = GSI.Dialog.extend( {
 
 		this._ButtonImgAdd.click( L.bind( this._onAddClick, this ) );
 		this._ButtonTxtAdd.click( L.bind( this._onAddClick, this ) );
+		this._RbtnTxtAdd.click( L.bind( this._onResetClick, this ) );
 
         /*
 		this._showAllButton  .click( L.bind( this._onShowAllClick  , this ) );
@@ -8543,6 +8549,10 @@ GSI.ViewListDialog = GSI.Dialog.extend( {
 	_onAddClick : function()
 	{
         GSI.GLOBALS.layerTreeDialog.show();
+    },
+    _onResetClick : function()
+    {
+		this._resetTiles();
     },
     onCocoTileCheckChange  : function(onOffSwitch)
 	{
@@ -8567,6 +8577,17 @@ GSI.ViewListDialog = GSI.Dialog.extend( {
 	_onRemoveAllClick : function()
 	{
 		this._removeAll();
+	},
+	_resetTiles : function()
+	{
+		var std = GSI.GLOBALS.baseLayer.baseLayerList[0];
+		this._removeAll();
+		this.mapLayerList.append( std, true, false );
+		
+		if ( !this.map.hasLayer(std._visibleInfo.layer) )
+		{
+			this.map.addLayer(std._visibleInfo.layer);
+		}
 	},
 	_showAll : function( list )
 	{
@@ -9085,16 +9106,16 @@ GSI.ViewListDialog = GSI.Dialog.extend( {
         }
         else if(c == "+"){
             var v2 = Math.floor(v * 0.1);
-            var v1 = v - (v2 * 10);
-            v = (v2 + 1) * 10 + v1;
+            var v1 = v - (v2 * 5);
+            v = (v2 + 1) * 5 + v1;
         }
         else if(c == "--"){
             v--;
         }
         else if(c == "-"){
             var v2 = Math.floor(v * 0.1);
-            var v1 = v - (v2 * 10);
-            v = (v2 - 1) * 10 + v1;
+            var v1 = v - (v2 * 5);
+            v = (v2 - 1) * 5 + v1;
         }
         
         else{
@@ -10017,7 +10038,7 @@ GSI.HashOptions = L.Class.extend( {
                 hash += "&" + v;
             }
 
-            // 表示できる情報設定：表示階層を共有
+            // 情報リスト設定：表示階層を共有
             // lcd=
             v = GSI.GLOBALS.pageStateManager.getCurrentPathQueryString();
             if(v != ""){
@@ -10038,8 +10059,8 @@ GSI.HashOptions = L.Class.extend( {
 		    visibles[ CONFIG.PARAMETERNAMES.UTMGRID    ] = GSI.GLOBALS.pageStateManager.getViewSettingVisible(CONFIG.PARAMETERNAMES.UTMGRID    ); // 表示設定：磁北線            vs=j[0/1]
 		    visibles[ CONFIG.PARAMETERNAMES.FOOTER     ] = GSI.GLOBALS.footer.isVisible();
 		    var visibleDialogs = {};
-		    visibleDialogs[ CONFIG.DIALOGPARAMETER.VIEWLISTDIALOG ] = GSI.GLOBALS.viewListDialog .getVisible(); // 表示できる情報設定：表示できる情報 d=l
-		    visibleDialogs[ CONFIG.DIALOGPARAMETER.LAYERTREEDIALOG] = GSI.GLOBALS.layerTreeDialog.getVisible(); // 表示できる情報設定：選択中の情報   d=v
+		    visibleDialogs[ CONFIG.DIALOGPARAMETER.VIEWLISTDIALOG ] = GSI.GLOBALS.viewListDialog .getVisible(); // 情報リスト設定：情報リスト d=l
+		    visibleDialogs[ CONFIG.DIALOGPARAMETER.LAYERTREEDIALOG] = GSI.GLOBALS.layerTreeDialog.getVisible(); // 情報リスト設定：選択中の情報   d=v
 
 		    var queryParams = GSI.GLOBALS.pageStateManager.getQueryParams(
             {
@@ -10100,7 +10121,7 @@ GSI.HashOptions = L.Class.extend( {
                 // 表示設定：コンテキストメニュー vs=f[0/1]
                 GSI.GLOBALS.onoffObjects[CONFIG.PARAMETERNAMES.FOOTER     ].obj.setVisible(viewSetting.footer     );
 
-                // 表示できる情報設定：選択中の情報   d=v
+                // 情報リスト設定：選択中の情報   d=v
                 if(GSI.GLOBALS.queryParams.getViewListDialogVisible()){
                     GSI.GLOBALS.viewListDialog.show();
                 }
@@ -10108,7 +10129,7 @@ GSI.HashOptions = L.Class.extend( {
                     GSI.GLOBALS.viewListDialog.hide();
                 }
 
-                // 表示できる情報設定：表示できる情報 d=v
+                // 情報リスト設定：情報リスト d=v
                 if(GSI.GLOBALS.queryParams.getLayerTreeDialogVisible()){
                     GSI.GLOBALS.layerTreeDialog.show();
                 }
@@ -11052,11 +11073,11 @@ GSI.LayersJSON = L.Class.extend( {
 		if ( this.currentFileIndex >= this._loadingData.length )
 		{
             // ... [背景地図]を末尾へ
-            var daba_base = null;
-            if(this._data.length >= 1){
-                daba_base = this._data[this._data.length - 1];
-                this._data.pop();
-            }
+            //var daba_base = null;
+            //if(this._data.length >= 1){
+            //    daba_base = this._data[this._data.length - 1];
+            //    this._data.pop();
+            //}
 			for ( var i=0; i<this._loadingData.length; i++ )
 			{
 				// concatは？
@@ -11066,9 +11087,9 @@ GSI.LayersJSON = L.Class.extend( {
 				}
 			}
             // ... [背景地図]を末尾へ
-            if(daba_base != null){
-                this._data.push(daba_base);
-            }
+            //if(daba_base != null){
+            //    this._data.push(daba_base);
+            //}
 
 			this._loadingData = null;
 

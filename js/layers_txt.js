@@ -1,6 +1,6 @@
 var CONFIG = {};
 CONFIG.layerBase          = ['./layers_txt/layers0.txt'];
-CONFIG.layerBaseFolder    = "背景地図";
+CONFIG.layerBaseFolder    = "ベースマップ";
 CONFIG.layerBaseFolderSYS = "GSI.MAP.BASE";
 CONFIG.layers             = [
 	 './layers_txt/layers1.txt'
