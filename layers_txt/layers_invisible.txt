@@ -3,7 +3,7 @@
     {
       "type": "Layer",
       "id": "dem",
-      "title": "•W‚ƒ^ƒCƒ‹",
+      "title": "æ¨™é«˜ã‚¿ã‚¤ãƒ«",
       "url": "http://cyberjapandata.gsi.go.jp/xyz/dem/{z}/{x}/{y}.txt",
       "minZoom": 0,
       "maxZoom": 14
@@ -11,16 +11,16 @@
     {
       "type": "Layer",
       "id": "experimental_dem5a",
-      "title": "Šî”Õ’n}î•ñ_”’l•W‚ƒ‚ƒfƒ‹(5m)",
+      "title": "åŸºç›¤åœ°å›³æƒ…å ±_æ•°å€¤æ¨™é«˜ãƒ¢ãƒ‡ãƒ«(5m)",
       "url": "http://cyberjapandata.gsi.go.jp/xyz/experimental_dem5a/{z}/{x}/{y}.geojson",
       "minZoom": 18,
       "maxZoom": 18,
-      "html": "<a target='_blank' href='https://github.com/gsi-cyberjapan/vector-tile-experiment'>ƒxƒNƒgƒ‹ƒ^ƒCƒ‹’ñ‹ŸÀŒ±</a>"
+      "html": "<a target='_blank' href='https://github.com/gsi-cyberjapan/vector-tile-experiment'>ãƒ™ã‚¯ãƒˆãƒ«ã‚¿ã‚¤ãƒ«æä¾›å®Ÿé¨“</a>"
     },
     {
       "type": "Layer",
       "id": "dem5a",
-      "title": "•W‚•\¦—pƒf[ƒ^5a",
+      "title": "æ¨™é«˜è¡¨ç¤ºç”¨ãƒ‡ãƒ¼ã‚¿5a",
       "url": "http://cyberjapandata.gsi.go.jp/xyz/dem5a/{z}/{x}/{y}.txt",
       "minZoom": 15,
       "maxZoom": 15
@@ -28,7 +28,7 @@
     {
       "type": "Layer",
       "id": "dem5b",
-      "title": "•W‚•\¦—pƒf[ƒ^5b",
+      "title": "æ¨™é«˜è¡¨ç¤ºç”¨ãƒ‡ãƒ¼ã‚¿5b",
       "url": "http://cyberjapandata.gsi.go.jp/xyz/dem5b/{z}/{x}/{y}.txt",
       "minZoom": 15,
       "maxZoom": 15
@@ -36,7 +36,7 @@
     {
       "type": "Layer",
       "id": "20131217dd5",
-      "title": "¼”V“‡•t‹ß•¬‰ÎŠˆ“® •W‚ƒ^ƒCƒ‹i2013”N12Œ17“új",
+      "title": "è¥¿ä¹‹å³¶ä»˜è¿‘å™´ç«æ´»å‹• æ¨™é«˜ã‚¿ã‚¤ãƒ«ï¼ˆ2013å¹´12æœˆ17æ—¥ï¼‰",
       "url": "http://cyberjapandata.gsi.go.jp/xyz/20131217dd5/{z}/{x}/{y}.txt",
       "minZoom": 15,
       "maxZoom": 15
@@ -44,7 +44,7 @@
     {
       "type": "Layer",
       "id": "20140216dd5",
-      "title": "¼”V“‡•t‹ß•¬‰ÎŠˆ“® •W‚ƒ^ƒCƒ‹i2014”N2Œ16“új",
+      "title": "è¥¿ä¹‹å³¶ä»˜è¿‘å™´ç«æ´»å‹• æ¨™é«˜ã‚¿ã‚¤ãƒ«ï¼ˆ2014å¹´2æœˆ16æ—¥ï¼‰",
       "url": "http://cyberjapandata.gsi.go.jp/xyz/20140216dd5/{z}/{x}/{y}.txt",
       "minZoom": 15,
       "maxZoom": 15
@@ -52,7 +52,7 @@
     {
       "type": "Layer",
       "id": "20140322dd5",
-      "title": "¼”V“‡•t‹ß•¬‰ÎŠˆ“® •W‚ƒ^ƒCƒ‹i2014”N3Œ22“úAUAV‚ğ—p‚¢‚Äì¬j",
+      "title": "è¥¿ä¹‹å³¶ä»˜è¿‘å™´ç«æ´»å‹• æ¨™é«˜ã‚¿ã‚¤ãƒ«ï¼ˆ2014å¹´3æœˆ22æ—¥ã€UAVã‚’ç”¨ã„ã¦ä½œæˆï¼‰",
       "url": "http://cyberjapandata.gsi.go.jp/xyz/20140322dd5/{z}/{x}/{y}.txt",
       "minZoom": 15,
       "maxZoom": 15
@@ -60,7 +60,7 @@
     {
       "type": "Layer",
       "id": "20140704dd5",
-      "title": "¼”V“‡•t‹ß•¬‰ÎŠˆ“® •W‚ƒ^ƒCƒ‹i2014”N7Œ4“úAUAV‚ğ—p‚¢‚Äì¬j",
+      "title": "è¥¿ä¹‹å³¶ä»˜è¿‘å™´ç«æ´»å‹• æ¨™é«˜ã‚¿ã‚¤ãƒ«ï¼ˆ2014å¹´7æœˆ4æ—¥ã€UAVã‚’ç”¨ã„ã¦ä½œæˆï¼‰",
       "url": "http://cyberjapandata.gsi.go.jp/xyz/20140704dd5/{z}/{x}/{y}.txt",
       "minZoom": 15,
       "maxZoom": 15
@@ -68,7 +68,7 @@
     {
       "type": "Layer",
       "id": "20141204dd5",
-      "title": "¼”V“‡•t‹ß•¬‰ÎŠˆ“® •W‚ƒ^ƒCƒ‹i2014”N12Œ4“új",
+      "title": "è¥¿ä¹‹å³¶ä»˜è¿‘å™´ç«æ´»å‹• æ¨™é«˜ã‚¿ã‚¤ãƒ«ï¼ˆ2014å¹´12æœˆ4æ—¥ï¼‰",
       "url": "http://cyberjapandata.gsi.go.jp/xyz/20141204dd5/{z}/{x}/{y}.txt",
       "minZoom": 15,
       "maxZoom": 15
@@ -76,7 +76,7 @@
     {
       "type": "Layer",
       "id": "20150301dd5",
-      "title": "¼”V“‡•t‹ß•¬‰ÎŠˆ“® •W‚ƒ^ƒCƒ‹i2015”N3Œ1“úAUAV‚ğ—p‚¢‚Äì¬j",
+      "title": "è¥¿ä¹‹å³¶ä»˜è¿‘å™´ç«æ´»å‹• æ¨™é«˜ã‚¿ã‚¤ãƒ«ï¼ˆ2015å¹´3æœˆ1æ—¥ã€UAVã‚’ç”¨ã„ã¦ä½œæˆï¼‰",
       "url": "http://cyberjapandata.gsi.go.jp/xyz/20150301dd5/{z}/{x}/{y}.txt",
       "minZoom": 15,
       "maxZoom": 15
@@ -84,7 +84,7 @@
     {
       "type": "Layer",
       "id": "20150728dd5",
-      "title": "¼”V“‡•t‹ß•¬‰ÎŠˆ“® •W‚ƒ^ƒCƒ‹i2015”N7Œ28“úAUAV‚ğ—p‚¢‚Äì¬j",
+      "title": "è¥¿ä¹‹å³¶ä»˜è¿‘å™´ç«æ´»å‹• æ¨™é«˜ã‚¿ã‚¤ãƒ«ï¼ˆ2015å¹´7æœˆ28æ—¥ã€UAVã‚’ç”¨ã„ã¦ä½œæˆï¼‰",
       "url": "http://cyberjapandata.gsi.go.jp/xyz/20150728dd5/{z}/{x}/{y}.txt",
       "minZoom": 15,
       "maxZoom": 15
@@ -92,7 +92,7 @@
     {
       "type": "Layer",
       "id": "20151209dd5",
-      "title": "¼”V“‡•t‹ß•¬‰ÎŠˆ“® •W‚ƒ^ƒCƒ‹i2015”N12Œ9“új",
+      "title": "è¥¿ä¹‹å³¶ä»˜è¿‘å™´ç«æ´»å‹• æ¨™é«˜ã‚¿ã‚¤ãƒ«ï¼ˆ2015å¹´12æœˆ9æ—¥ï¼‰",
       "url": "http://cyberjapandata.gsi.go.jp/xyz/20151209dd5/{z}/{x}/{y}.txt",
       "minZoom": 15,
       "maxZoom": 15
