@@ -5536,6 +5536,78 @@
             },
             {
               "type": "LayerGroup",
+              "title": "霧島山の火山活動",
+              "iconUrl": "",
+              "open": false,
+              "toggleall": false,
+              "entries": [
+                {
+                  "type": "LayerGroup",
+                  "title": "SAR解析結果",
+                  "iconUrl": "",
+                  "open": false,
+                  "toggleall": false,
+                  "entries": [
+                    {
+                      "type": "Layer",
+                      "id": "urgent_volcano_kirishimayama_20151105_20160211_u06r",
+                      "title": "2015/11/06～2016/02/12_AR",
+                      "iconUrl": "http://vldb.gsi.go.jp/sokuchi/sar/image/cyberjapan/GSISAR_logo22.png",
+                      "url": "http://cyberjapandata.gsi.go.jp/xyz/urgent_volcano_kirishimayama_20151105_20160211_u06r/{z}/{x}/{y}.png",
+                      "subdomains": "",
+                      "attribution": "",
+                      "cocotile": true,
+                      "minZoom": 5,
+                      "maxZoom": 18,
+                      "maxNativeZoom": 15,
+                      "legendUrl": "http://vldb.gsi.go.jp/sokuchi/sar/mechanism/interpretation.html",
+                      "html": "<table border=\"0\" cellspacing=\"0\" width=\"150\">\n<tr align=\"center\"><td style=\"font-size:8pt\"><a href=\"http://vldb.gsi.go.jp/sokuchi/sar/mechanism/specification.html\" target=\"_blank\" title=\"表の見方\" style=\"font-size:8pt\">表の見方</a></td></tr>\n</table>\n<table align=\"left\" border=\"1\" cellspacing=\"0\">\n<tr align=\"center\"><td style=\"font-size:8pt\">SAR衛星</td><td style=\"font-size:8pt\">だいち2号</td></tr>\n<tr align=\"center\"><td style=\"font-size:8pt\">1回目観測日</td><...(line truncated)...
+                    },
+                    {
+                      "type": "Layer",
+                      "id": "urgent_volcano_kirishimayama20151106_20160212",
+                      "title": "┗コメント",
+                      "iconUrl": "",
+                      "url": "http://cyberjapandata.gsi.go.jp/overlay/1602kirishimayama/urgent_volcano_kirishimayama20151106_20160212.kml",
+                      "subdomains": "",
+                      "attribution": "",
+                      "cocotile": false,
+                      "legendUrl": "",
+                      "html": ""
+                    },
+                    {
+                      "type": "Layer",
+                      "id": "urgent_volcano_kirishimayama_20150921_20151130_u07r",
+                      "title": "2015/09/21～2015/11/30_DR",
+                      "iconUrl": "http://vldb.gsi.go.jp/sokuchi/sar/image/cyberjapan/GSISAR_logo22.png",
+                      "url": "http://cyberjapandata.gsi.go.jp/xyz/urgent_volcano_kirishimayama_20150921_20151130_u07r/{z}/{x}/{y}.png",
+                      "subdomains": "",
+                      "attribution": "",
+                      "cocotile": true,
+                      "minZoom": 5,
+                      "maxZoom": 18,
+                      "maxNativeZoom": 15,
+                      "legendUrl": "http://vldb.gsi.go.jp/sokuchi/sar/mechanism/interpretation.html",
+                      "html": "<table border=\"0\" cellspacing=\"0\" width=\"150\">\n<tr align=\"center\"><td style=\"font-size:8pt\"><a href=\"http://vldb.gsi.go.jp/sokuchi/sar/mechanism/specification.html\" target=\"_blank\" title=\"表の見方\" style=\"font-size:8pt\">表の見方</a></td></tr>\n</table>\n<table align=\"left\" border=\"1\" cellspacing=\"0\">\n<tr align=\"center\"><td style=\"font-size:8pt\">SAR衛星</td><td style=\"font-size:8pt\">だいち2号</td></tr>\n<tr align=\"center\"><td style=\"font-size:8pt\">1回目観測日</td><...(line truncated)...
+                    },
+                    {
+                      "type": "Layer",
+                      "id": "1602kirishimayama/urgent_volcano_kirishimayama20150921_20151130",
+                      "title": "┗コメント",
+                      "iconUrl": "",
+                      "url": "http://cyberjapandata.gsi.go.jp/overlay/1602kirishimayama/urgent_volcano_kirishimayama20150921_20151130.kml",
+                      "subdomains": "",
+                      "attribution": "",
+                      "cocotile": false,
+                      "legendUrl": "",
+                      "html": ""
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "LayerGroup",
               "title": "桜島",
               "iconUrl": "",
               "open": false,
@@ -5548,6 +5620,60 @@
                   "open": false,
                   "toggleall": false,
                   "entries": [
+                    {
+                      "type": "Layer",
+                      "id": "20151130_20160208_sar_sakurajima",
+                      "title": "2015/11/30～2016/02/08_DR",
+                      "iconUrl": "http://vldb.gsi.go.jp/sokuchi/sar/image/cyberjapan/GSISAR_logo22.png",
+                      "url": "http://cyberjapandata.gsi.go.jp/xyz/20151130_20160208_sar_sakurajima/{z}/{x}/{y}.png",
+                      "subdomains": "",
+                      "attribution": "",
+                      "cocotile": false,
+                      "minZoom": 5,
+                      "maxZoom": 18,
+                      "maxNativeZoom": 15,
+                      "legendUrl": "http://vldb.gsi.go.jp/sokuchi/sar/mechanism/interpretation.html",
+                      "html": "<table border=\"0\" cellspacing=\"0\" width=\"150\">\n<tr align=\"center\"><td style=\"font-size:8pt\"><a href=\"http://vldb.gsi.go.jp/sokuchi/sar/mechanism/specification.html\" target=\"_blank\" title=\"表の見方\" style=\"font-size:8pt\">表の見方</a></td></tr>\n</table>\n<table align=\"left\" border=\"1\" cellspacing=\"0\">\n<tr align=\"center\"><td style=\"font-size:8pt\">SAR衛星</td><td style=\"font-size:8pt\">だいち2号</td></tr>\n<tr align=\"center\"><td style=\"font-size:8pt\">1回目観測日</td><...(line truncated)...
+                    },
+                    {
+                      "type": "Layer",
+                      "id": "sakurajima20151130_20160208",
+                      "title": "┗コメント（干渉画像）",
+                      "iconUrl": "",
+                      "url": "http://cyberjapandata.gsi.go.jp/overlay/1508sakurajima/sakurajima20151130_20160208.kml",
+                      "subdomains": "",
+                      "attribution": "",
+                      "cocotile": false,
+                      "legendUrl": "",
+                      "html": "<div class=\"gsi_layerinfo_title\">桜島の火山活動 - SAR干渉画像コメント</div><div class=\"gsi_layerinfo_copy\">(c)国土地理院</div>"
+                    },
+                    {
+                      "type": "Layer",
+                      "id": "20150824_20160208_sar_sakurajima",
+                      "title": "2015/08/24～2016/02/08_DR",
+                      "iconUrl": "http://vldb.gsi.go.jp/sokuchi/sar/image/cyberjapan/GSISAR_logo22.png",
+                      "url": "http://cyberjapandata.gsi.go.jp/xyz/20150824_20160208_sar_sakurajima/{z}/{x}/{y}.png",
+                      "subdomains": "",
+                      "attribution": "",
+                      "cocotile": false,
+                      "minZoom": 5,
+                      "maxZoom": 18,
+                      "maxNativeZoom": 15,
+                      "legendUrl": "http://vldb.gsi.go.jp/sokuchi/sar/mechanism/interpretation.html",
+                      "html": "<table border=\"0\" cellspacing=\"0\" width=\"150\">\n<tr align=\"center\"><td style=\"font-size:8pt\"><a href=\"http://vldb.gsi.go.jp/sokuchi/sar/mechanism/specification.html\" target=\"_blank\" title=\"表の見方\" style=\"font-size:8pt\">表の見方</a></td></tr>\n</table>\n<table align=\"left\" border=\"1\" cellspacing=\"0\">\n<tr align=\"center\"><td style=\"font-size:8pt\">SAR衛星</td><td style=\"font-size:8pt\">だいち2号</td></tr>\n<tr align=\"center\"><td style=\"font-size:8pt\">1回目観測日</td><...(line truncated)...
+                    },
+                    {
+                      "type": "Layer",
+                      "id": "sakurajima20150824_20160208",
+                      "title": "┗コメント（干渉画像）",
+                      "iconUrl": "",
+                      "url": "http://cyberjapandata.gsi.go.jp/overlay/1508sakurajima/sakurajima20150824_20160208.kml",
+                      "subdomains": "",
+                      "attribution": "",
+                      "cocotile": false,
+                      "legendUrl": "",
+                      "html": "<div class=\"gsi_layerinfo_title\">桜島の火山活動 - SAR干渉画像コメント</div><div class=\"gsi_layerinfo_copy\">(c)国土地理院</div>"
+                    },
                     {
                       "type": "Layer",
                       "id": "20150824_20150907_u07r_sar_sakurajima",

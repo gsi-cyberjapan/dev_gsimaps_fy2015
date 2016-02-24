@@ -2275,11 +2275,54 @@
           "entries": [
             {
               "type": "LayerGroup",
-              "title": "電子国土基本図の更新情報",
+              "title": "電子国土基本図",
               "iconUrl": "",
               "open": false,
               "toggleall": false,
               "entries": [
+
+                {
+                  "type": "LayerGroup",
+                  "title": "2016年迅速更新情報",
+                  "iconUrl": "",
+                  "open": false,
+                  "toggleall": false,
+                  "entries": [
+                    {
+                      "type": "Layer",
+                      "id": "jin201601",
+                      "title": "1月更新",
+                      "iconUrl": "http://cyberjapandata.gsi.go.jp/portal/sys/v4/symbols/080.png",
+                      "url": "http://cyberjapandata.gsi.go.jp/overlay/update_std/data/jinsoku2016/201601.kml",
+                      "subdomains": "",
+                      "attribution": "",
+                      "cocotile": false,
+                      "legendUrl": "",
+                      "html": ""
+                    }
+                  ]
+                },
+                {
+                  "type": "LayerGroup",
+                  "title": "2016年面的更新情報",
+                  "iconUrl": "",
+                  "open": false,
+                  "toggleall": false,
+                  "entries": [
+                    {
+                      "type": "Layer",
+                      "id": "men201601",
+                      "title": "1月更新",
+                      "iconUrl": "",
+                      "url": "http://cyberjapandata.gsi.go.jp/overlay/update_std/data/men2016/201601.kml",
+                      "subdomains": "",
+                      "attribution": "",
+                      "cocotile": false,
+                      "legendUrl": "",
+                      "html": ""
+                    }
+                  ]
+                },
                 {
                   "type": "LayerGroup",
                   "title": "2015年迅速更新情報",
@@ -3128,11 +3171,34 @@
             },
             {
               "type": "LayerGroup",
-              "title": "基盤地図情報更新情報",
+              "title": "基盤地図情報",
               "iconUrl": "",
               "open": false,
               "toggleall": false,
               "entries": [
+                {
+                  "type": "LayerGroup",
+                  "title": "2016年更新情報",
+                  "iconUrl": "",
+                  "open": false,
+                  "toggleall": false,
+                  "entries": [
+                    {
+                      "type": "Layer",
+                      "id": "kiban_koushin2016_01",
+                      "title": "1月更新",
+                      "iconUrl": "",
+                      "url": "http://cyberjapandata.gsi.go.jp/xyz/fgd_update/2016-01/{z}/{x}/{y}.png",
+                      "subdomains": "",
+                      "attribution": "",
+                      "cocotile": true,
+                      "minZoom": 4,
+                      "maxZoom": 12,
+                      "legendUrl": "",
+                      "html": ""
+                    }
+                  ]
+                },
                 {
                   "type": "LayerGroup",
                   "title": "2015年更新情報",
@@ -3190,7 +3256,7 @@
                       "url": "http://cyberjapandata.gsi.go.jp/xyz/fgd_update/2015-10/{z}/{x}/{y}.png",
                       "subdomains": "",
                       "attribution": "",
-                      "cocotile": false,
+                      "cocotile": true,
                       "minZoom": 4,
                       "maxZoom": 12,
                       "legendUrl": "",
@@ -3239,7 +3305,22 @@
           "maxNativeZoom": 8,
           "legendUrl": "",
           "html": "２万５千分1地形図郭（ズーム10～18で表示）<br><a target=\"_blank\" href=\"http://www.gsi.go.jp/chizuhensyu/zukaku_ido_keido1.html\">多色刷の２万５千分１地形図の図郭</a>です。"
-        }
+        },
+        {
+          "type": "Layer",
+          "id": "chiikimesh",
+          "title": "地域メッシュ",
+          "iconUrl": "",
+          "url": "http://cyberjapandata.gsi.go.jp/xyz/chiikimesh/{z}/{x}/{y}.geojson",
+          "subdomains": "",
+          "attribution": "",
+          "cocotile": true,
+          "minZoom": 6,
+          "maxZoom": 18,
+          "maxNativeZoom": 14,
+          "legendUrl": "",
+          "html": "「統計に用いる標準地域メッシュおよび標準地域メッシュ・コード」（昭和48年７月12日行政管理庁告示第143号）における地域メッシュです。<br>第１次地域区画：ズーム6～9で表示<br>第２次地域区画：ズーム10～13で表示<br>第３次地域区画：ズーム14～18で表示<br>参考：<a target=\"_blank\" href=\"http://www.stat.go.jp/data/mesh/gaiyou.htm\">総務省統計局　地域メッシュ統計の概要</a>"
+        },
       ]
     }
   ]
