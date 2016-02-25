@@ -4,7 +4,6 @@
       "type": "LayerGroup",
       "title": "主題図",
       "iconUrl": "",
-      "open": false,
       "toggleall": false,
       "entries": [
         {
@@ -21,9 +20,43 @@
         },
         {
           "type": "LayerGroup",
+          "title": "都市圏活断層図",
+          "iconUrl": "",
+          "toggleall": false,
+          "entries": [
+            {
+              "type": "Layer",
+              "id": "afm",
+              "title": "都市圏活断層図",
+              "iconUrl": "",
+              "url": "http://cyberjapandata.gsi.go.jp/xyz/afm/{z}/{x}/{y}.png",
+              "subdomains": "",
+              "attribution": "",
+              "cocotile": true,
+              "maxZoom": 16,
+              "legendUrl": "http://www.gsi.go.jp/common/000084060.pdf",
+              "html": "<div class=\"gsi_layerinfo_title\">都市圏活断層図</div><div class=\"gsi_layerinfo_kaisetu\"><a target=\"_blank\" href=\"http://www.gsi.go.jp/bousaichiri/guidebook.html\">解説</a></div><div class=\"gsi_layerinfo_copy\">(c)国土地理院</div>"
+            },
+            {
+              "type": "Layer",
+              "id": "afm_spec",
+              "title": "諸元情報",
+              "iconUrl": "",
+              "url": "http://cyberjapandata.gsi.go.jp/xyz/afm_spec/{z}/{x}/{y}.geojson",
+              "subdomains": "",
+              "attribution": "",
+              "cocotile": false,
+              "maxZoom": 16,
+              "maxNativeZoom": 2,
+              "legendUrl": "",
+              "html": "図上クリックすると諸元が表示されます。<br><a href=\"http://www.gsi.go.jp/bousaichiri/inspection.html\" target=\"_blank\">整備一覧</a>"
+            }
+          ]
+        },
+        {
+          "type": "LayerGroup",
           "title": "土地条件図",
           "iconUrl": "",
-          "open": false,
           "toggleall": false,
           "entries": [
             {
@@ -59,7 +92,6 @@
           "type": "LayerGroup",
           "title": "沿岸海域土地条件図",
           "iconUrl": "",
-          "open": false,
           "toggleall": false,
           "entries": [
             {
@@ -94,7 +126,6 @@
           "type": "LayerGroup",
           "title": "治水地形分類図",
           "iconUrl": "",
-          "open": false,
           "toggleall": false,
           "entries": [
             {
@@ -171,52 +202,14 @@
         },
         {
           "type": "LayerGroup",
-          "title": "都市圏活断層図",
-          "iconUrl": "",
-          "open": false,
-          "toggleall": false,
-          "entries": [
-            {
-              "type": "Layer",
-              "id": "afm",
-              "title": "都市圏活断層図",
-              "iconUrl": "",
-              "url": "http://cyberjapandata.gsi.go.jp/xyz/afm/{z}/{x}/{y}.png",
-              "subdomains": "",
-              "attribution": "",
-              "cocotile": true,
-              "maxZoom": 16,
-              "legendUrl": "http://www.gsi.go.jp/common/000084060.pdf",
-              "html": "<div class=\"gsi_layerinfo_title\">都市圏活断層図</div><div class=\"gsi_layerinfo_kaisetu\"><a target=\"_blank\" href=\"http://www.gsi.go.jp/bousaichiri/guidebook.html\">解説</a></div><div class=\"gsi_layerinfo_copy\">(c)国土地理院</div>"
-            },
-            {
-              "type": "Layer",
-              "id": "afm_spec",
-              "title": "諸元情報",
-              "iconUrl": "",
-              "url": "http://cyberjapandata.gsi.go.jp/xyz/afm_spec/{z}/{x}/{y}.geojson",
-              "subdomains": "",
-              "attribution": "",
-              "cocotile": false,
-              "maxZoom": 16,
-              "maxNativeZoom": 2,
-              "legendUrl": "",
-              "html": "図上クリックすると諸元が表示されます。<br><a href=\"http://www.gsi.go.jp/bousaichiri/inspection.html\" target=\"_blank\">整備一覧</a>"
-            }
-          ]
-        },
-        {
-          "type": "LayerGroup",
           "title": "宅地利用動向調査",
           "iconUrl": "",
-          "open": false,
           "toggleall": false,
           "entries": [
             {
               "type": "LayerGroup",
               "title": "首都圏",
               "iconUrl": "",
-              "open": false,
               "toggleall": false,
               "entries": [
                 {
@@ -316,7 +309,6 @@
               "type": "LayerGroup",
               "title": "中部圏",
               "iconUrl": "",
-              "open": false,
               "toggleall": false,
               "entries": [
                 {
@@ -403,7 +395,6 @@
               "type": "LayerGroup",
               "title": "近畿圏",
               "iconUrl": "",
-              "open": false,
               "toggleall": false,
               "entries": [
                 {
@@ -519,7 +510,6 @@
           "type": "LayerGroup",
           "title": "湖沼図",
           "iconUrl": "",
-          "open": false,
           "toggleall": false,
           "entries": [
             {
@@ -554,14 +544,12 @@
           "type": "LayerGroup",
           "title": "全国植生指標データ（250m）",
           "iconUrl": "",
-          "open": false,
           "toggleall": false,
           "entries": [
             {
               "type": "LayerGroup",
               "title": "2012年",
               "iconUrl": "",
-              "open": false,
               "toggleall": false,
               "entries": [
                 {
@@ -738,7 +726,6 @@
               "type": "LayerGroup",
               "title": "2011年",
               "iconUrl": "",
-              "open": false,
               "toggleall": false,
               "entries": [
                 {
@@ -915,7 +902,6 @@
               "type": "LayerGroup",
               "title": "2010年",
               "iconUrl": "",
-              "open": false,
               "toggleall": false,
               "entries": [
                 {
@@ -1092,7 +1078,6 @@
               "type": "LayerGroup",
               "title": "2009年",
               "iconUrl": "",
-              "open": false,
               "toggleall": false,
               "entries": [
                 {
@@ -1269,7 +1254,6 @@
               "type": "LayerGroup",
               "title": "2008年",
               "iconUrl": "",
-              "open": false,
               "toggleall": false,
               "entries": [
                 {
@@ -1446,7 +1430,6 @@
               "type": "LayerGroup",
               "title": "2007年",
               "iconUrl": "",
-              "open": false,
               "toggleall": false,
               "entries": [
                 {
@@ -1623,7 +1606,6 @@
               "type": "LayerGroup",
               "title": "2006年",
               "iconUrl": "",
-              "open": false,
               "toggleall": false,
               "entries": [
                 {
@@ -1800,7 +1782,6 @@
               "type": "LayerGroup",
               "title": "2005年",
               "iconUrl": "",
-              "open": false,
               "toggleall": false,
               "entries": [
                 {
@@ -1977,7 +1958,6 @@
               "type": "LayerGroup",
               "title": "2004年",
               "iconUrl": "",
-              "open": false,
               "toggleall": false,
               "entries": [
                 {
@@ -2114,14 +2094,12 @@
           "type": "LayerGroup",
           "title": "地球地図",
           "iconUrl": "",
-          "open": false,
           "toggleall": false,
           "entries": [
             {
               "type": "LayerGroup",
               "title": "地球地図全球版",
               "iconUrl": "",
-              "open": false,
               "toggleall": false,
               "entries": [
                 {
@@ -2158,7 +2136,6 @@
           "type": "LayerGroup",
           "title": "南極の地理空間情報",
           "iconUrl": "",
-          "open": false,
           "toggleall": false,
           "entries": [
             {
@@ -2211,7 +2188,6 @@
           "type": "LayerGroup",
           "title": "基盤地図情報の提供地域",
           "iconUrl": "",
-          "open": false,
           "toggleall": false,
           "entries": [
             {
@@ -2270,22 +2246,18 @@
           "type": "LayerGroup",
           "title": "更新情報",
           "iconUrl": "",
-          "open": false,
           "toggleall": false,
           "entries": [
             {
               "type": "LayerGroup",
               "title": "電子国土基本図",
               "iconUrl": "",
-              "open": false,
               "toggleall": false,
               "entries": [
-
                 {
                   "type": "LayerGroup",
                   "title": "2016年迅速更新情報",
                   "iconUrl": "",
-                  "open": false,
                   "toggleall": false,
                   "entries": [
                     {
@@ -2306,7 +2278,6 @@
                   "type": "LayerGroup",
                   "title": "2016年面的更新情報",
                   "iconUrl": "",
-                  "open": false,
                   "toggleall": false,
                   "entries": [
                     {
@@ -2327,7 +2298,6 @@
                   "type": "LayerGroup",
                   "title": "2015年迅速更新情報",
                   "iconUrl": "",
-                  "open": false,
                   "toggleall": false,
                   "entries": [
                     {
@@ -2480,7 +2450,6 @@
                   "type": "LayerGroup",
                   "title": "2015年面的更新情報",
                   "iconUrl": "",
-                  "open": false,
                   "toggleall": false,
                   "entries": [
                     {
@@ -2620,7 +2589,6 @@
                   "type": "LayerGroup",
                   "title": "2014年迅速更新情報",
                   "iconUrl": "",
-                  "open": false,
                   "toggleall": false,
                   "entries": [
                     {
@@ -2773,7 +2741,6 @@
                   "type": "LayerGroup",
                   "title": "2014年面的更新情報",
                   "iconUrl": "",
-                  "open": false,
                   "toggleall": false,
                   "entries": [
                     {
@@ -2889,7 +2856,6 @@
                   "type": "LayerGroup",
                   "title": "2013年迅速更新情報",
                   "iconUrl": "",
-                  "open": false,
                   "toggleall": false,
                   "entries": [
                     {
@@ -3042,7 +3008,6 @@
                   "type": "LayerGroup",
                   "title": "2012年迅速更新情報",
                   "iconUrl": "",
-                  "open": false,
                   "toggleall": false,
                   "entries": [
                     {
@@ -3173,14 +3138,12 @@
               "type": "LayerGroup",
               "title": "基盤地図情報",
               "iconUrl": "",
-              "open": false,
               "toggleall": false,
               "entries": [
                 {
                   "type": "LayerGroup",
                   "title": "2016年更新情報",
                   "iconUrl": "",
-                  "open": false,
                   "toggleall": false,
                   "entries": [
                     {
@@ -3203,7 +3166,6 @@
                   "type": "LayerGroup",
                   "title": "2015年更新情報",
                   "iconUrl": "",
-                  "open": false,
                   "toggleall": false,
                   "entries": [
                     {
@@ -3268,7 +3230,6 @@
                   "type": "LayerGroup",
                   "title": "2014年更新情報",
                   "iconUrl": "",
-                  "open": false,
                   "toggleall": false,
                   "entries": [
                     {
@@ -3320,7 +3281,7 @@
           "maxNativeZoom": 14,
           "legendUrl": "",
           "html": "「統計に用いる標準地域メッシュおよび標準地域メッシュ・コード」（昭和48年７月12日行政管理庁告示第143号）における地域メッシュです。<br>第１次地域区画：ズーム6～9で表示<br>第２次地域区画：ズーム10～13で表示<br>第３次地域区画：ズーム14～18で表示<br>参考：<a target=\"_blank\" href=\"http://www.stat.go.jp/data/mesh/gaiyou.htm\">総務省統計局　地域メッシュ統計の概要</a>"
-        },
+        }
       ]
     }
   ]
