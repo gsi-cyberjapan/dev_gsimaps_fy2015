@@ -5471,7 +5471,7 @@
             },
             {
               "type": "LayerGroup",
-              "title": "霧島山の火山活動",
+              "title": "霧島山",
               "iconUrl": "",
               "toggleall": false,
               "entries": [
