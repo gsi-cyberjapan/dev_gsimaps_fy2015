@@ -177,7 +177,7 @@
             },
             {
               "type": "LayerGroup",
-              "title": "平成23年東日本大震災",
+              "title": "平成23年東北地方太平洋沖地震",
               "iconUrl": "",
               "toggleall": false,
               "entries": [
@@ -5404,7 +5404,7 @@
                     },
                     {
                       "type": "Layer",
-                      "id": "1602kirishimayama/urgent_volcano_kirishimayama20150921_20151130",
+                      "id": "urgent_volcano_kirishimayama20150921_20151130",
                       "title": "┗コメント",
                       "iconUrl": "",
                       "url": "http://cyberjapandata.gsi.go.jp/overlay/1602kirishimayama/urgent_volcano_kirishimayama20150921_20151130.kml",
