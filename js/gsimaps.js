@@ -316,7 +316,7 @@ CONFIG.FUNCMENU = {
 	title : '機能',
 	children : [
 		{
-			title : '表示',
+			title : '設定',
 			arrow : true,
 			childrenWidth:230,
 			children : [
@@ -354,7 +354,7 @@ CONFIG.FUNCMENU = {
 					id : CONFIG.PARAMETERNAMES.CLICKMOVE,
 					title : 'クリックで移動',
 					typeA : 'check',
-					defaultCheck : true
+					defaultCheck : false
 				}
 			]
 		},
@@ -379,6 +379,12 @@ CONFIG.FUNCMENU = {
 					arrow : true,
 					checkCondition : function() { return GSI.GeoLocation.can; }
 				},
+				{
+					id : 'ucode',
+					title : '場所情報コード',
+					arrow : true,
+					href : 'ucodehref'//'http://ucopendb.gsi.go.jp/ucode_app/logical_code/ucode_disp.php?lat={y}&lng={x}&zoom={z}'
+				},				
 				{
 					title : '共有',
 					arrow : true,
@@ -498,7 +504,7 @@ GSI.TEXT.SAKUZU.LOAD_NOFILE = 'ファイルが選択されていません。';
 GSI.TEXT.SAKUZU.DIALOG_TITLE = '作図・ファイル';
 GSI.TEXT.SAKUZU.DIALOG_TOOLTIP_LOAD = 'ファイルから読み込み';
 GSI.TEXT.SAKUZU.DIALOG_TOOLTIP_SAVE = '選択している情報をまとめて保存';
-GSI.TEXT.SAKUZU.DIALOG_TOOLTIP_ADDMARKER = 'マーカーを追加';
+GSI.TEXT.SAKUZU.DIALOG_TOOLTIP_ADDMARKER = 'マーカー（アイコン）を追加';
 GSI.TEXT.SAKUZU.DIALOG_TOOLTIP_ADDCIRCLEMARKER = 'マーカー（円）を追加';
 GSI.TEXT.SAKUZU.DIALOG_TOOLTIP_ADDDIVMARKER = 'テキストを追加';
 GSI.TEXT.SAKUZU.DIALOG_TOOLTIP_ADDLINE = '線を追加';
@@ -520,7 +526,7 @@ GSI.TEXT.SAKUZU.DIALOG_LOAD_NOTEXT = 'テキストが入力されていません
 GSI.TEXT.SAKUZU.DIALOG_LOAD_ERROR = '読み込みに失敗しました。ファイルの形式をご確認ください。';
 
 GSI.TEXT.SAKUZU.DIALOG_SAVE_COMMENT = 'ファイル形式を選択して下さい';
-GSI.TEXT.SAKUZU.DIALOG_SAVE_COMMENT2= '「TEXT」で作図した内容はGeoJSON形式でのみ保存可能です。';
+GSI.TEXT.SAKUZU.DIALOG_SAVE_COMMENT2= '「TEXT」および「マーカー(円)」で作図した内容はGeoJSON形式でのみ保存可能です。';
 GSI.TEXT.SAKUZU.DIALOG_SAVE_COMMENT_IE8 = '<strong>KML,GeoJSON,TopoJSON</strong>ファイルの内容を入力して下さい' ;
 GSI.TEXT.SAKUZU.DIALOG_SAVE_OKBTN = '上記の内容で保存';
 GSI.TEXT.SAKUZU.DIALOG_SAVE_OKBTN_CLIPBOARD = 'クリップボードにコピー';
@@ -535,7 +541,7 @@ GSI.TEXT.SAKUZU.DIALOG_EDIT_REMOVECONFIRMMSG = 'このオブジェクトを削�
 GSI.TEXT.SAKUZU.DIALOG_EDIT_INFOFREE_BTN = '自由文入力に切替';
 GSI.TEXT.SAKUZU.DIALOG_EDIT_INFOTABLE_BTN = 'テーブル入力に切替';
 GSI.TEXT.SAKUZU.DIALOG_EDIT_POINTTEXT_MSG = '表示するHTMLを入力して下さい。';
-GSI.TEXT.SAKUZU.DIALOG_EDIT_POINTTEXT_HINT = '例1:動物園　\n例2:<div style="background:#FFFFFF;color:red;">図書館</div>';
+GSI.TEXT.SAKUZU.DIALOG_EDIT_POINTTEXT_HINT = '例1:動物園　\n例2:<span style="background:#00FFFF; color:red; font-size:20pt;">図書館</span>';
 
 // 共有
 GSI.TEXT.SHARE = {};
@@ -2953,6 +2959,10 @@ GSI.Links.getURL = function( id, center, z, bounds){
 		else				{zoomLevel = 18;}
 
 		return "http://www.its-mo.com/z-" + y +"-" + x + "-" + zoomLevel + ".htm";
+	}
+	else if ( id == 'ucodehref' )
+	{
+		return 'http://ucopendb.gsi.go.jp/ucode_app/logical_code/ucode_disp.php?lat=' + center.lat +'&lng=' + center.lng + '&zoom=' + z;
 	}
 	else
 	{
@@ -5505,8 +5515,6 @@ GSI.LayerTreeDialog = GSI.Dialog.extend( {
         }
 		if ( item._visibleInfo )
 		{
-			var viewMark = $( '<span>' ).addClass( 'viewmark' ).html( '表示' );
-			a.append( viewMark );
 			a.addClass( 'view' );
 		}
 		else
@@ -5683,6 +5691,156 @@ GSI.LayerTreeDialog = GSI.Dialog.extend( {
 		this._toolTipViewCounter = 0;
 	}
 });﻿
+
+/************************************************************************
+ L.Class
+ - GSI.Dialog
+   - GSI.HelpDialog (ヘルプダイアログ管理)
+ ************************************************************************/
+GSI.HelpDialog = GSI.Dialog.extend( {
+	options : {
+		title: '<span id="title_help_dialog">？</span>メニュー（リンク）',
+		width: '200px'
+	},
+	initialize : function(map,mapMouse, options)
+	{
+		this.map = map;
+		this.mapMouse = mapMouse;
+
+		GSI.Dialog.prototype.initialize.call(this, options);
+	},
+	show : function ()
+	{
+		GSI.Dialog.prototype.show.call(this);
+	},
+	hide : function ()
+	{
+		GSI.Dialog.prototype.hide.call(this);
+	},
+	createHeader : function()
+	{
+		this.title = $( '<div>' ).html( this.options.title );
+
+		return $( '<div>' ).append( this.title );
+	},
+	createContent : function()
+	{
+		this.frame = $( '<div>' ).attr( {
+			'style': 'padding:5px'
+		} );
+		
+		// リンク
+		this.LinkFrame = $( '<div>' ).attr( {
+			'style': 'height:20px; vertical-align:middle'
+		} );
+		this.LinkFrameHr = $( '<hr>' );
+		this.Link = $( '<a>' ).attr( {
+			'href'	: 'http://163.42.60.180/kawamura/help/index.html',
+			'target': '_blank',
+			'style'	: 'color:#000; text-decoration:none'
+		} );
+		
+		this.LinkImg = $( '<img>' ).attr( {
+			'src'	: './image/help/help_icon.png',
+			'border': '0',
+			'width'	: '20px',
+			'height': '20px',
+			'style'	: 'vertical-align:middle',
+			'alt'	: 'ヘルプ'
+		} );
+		
+		this.LinkMoji = $( '<span>' ).attr( {
+			'style': 'line-height:20px; position:relative; top:2px; left:5px'
+		} ).html( 'ヘルプ' );
+		this.LinkFrame.append( this.LinkImg).append( this.LinkMoji );
+		this.Link.append( this.LinkFrame );
+		this.frame.append( this.Link ).append( this.LinkFrameHr );
+
+		// リンク
+		this.LinkFrame = $( '<div>' ).attr( {
+			'style': 'height:20px; vertical-align:middle'
+		} );
+		this.LinkFrameHr = $( '<hr>' );
+		this.Link = $( '<a>' ).attr( {
+			'href'	: 'https://twitter.com/gsi_cyberjapan',
+			'target': '_blank',
+			'style'	: 'color:#000; text-decoration:none'
+		} );
+		
+		this.LinkImg = $( '<img>' ).attr( {
+			'src' 	:'./image/help/twitter.png',
+			'border': 0,
+			'width'	: '20px',
+			'height': '20px',
+			'style' : 'vertical-align:middle',
+			'alt'	: 'Twitter'
+		} );
+		
+		this.LinkMoji = $( '<span>' ).attr( {
+			'style': 'line-height:20px; position:relative; top:2px; left:5px'
+		} ).html( 'Twitter' );
+		this.LinkFrame.append( this.LinkImg ).append( this.LinkMoji );
+		this.Link.append( this.LinkFrame );
+		this.frame.append( this.Link ).append( this.LinkFrameHr );
+
+		// リンク
+		this.LinkFrame = $( '<div>' ).attr( {
+			'style': 'height:20px; vertical-align:middle;'
+		} );
+		this.LinkFrameHr = $( '<hr>' );
+		this.Link = $( '<a>' ).attr( {
+			'href'	: 'https://github.com/gsi-cyberjapan',
+			'target': '_blank',
+			'style'	: 'color:#000; text-decoration:none'
+		} );
+		
+		this.LinkImg = $( '<img>' ).attr( {
+			'src'	: './image/help/github.png',
+			'border': 0,
+			'width'	: '20px',
+			'height': '20px',
+			'style' : 'vertical-align:middle',
+			'alt'	: 'GitHub'
+		} );
+		
+		this.LinkMoji = $( '<span>' ).attr( {
+			'style': 'line-height:20px; position:relative; top:2px; left:5px'
+		} ).html( 'GitHub' );
+		this.LinkFrame.append( this.LinkImg ).append( this.LinkMoji );
+		this.Link.append( this.LinkFrame );
+		this.frame.append( this.Link ).append( this.LinkFrameHr );
+
+		// リンク
+		this.LinkFrame = $( '<div>' ).attr( {
+			'style': 'height:20px; vertical-align:middle'
+		} );
+		this.LinkFrameHr = $( '<hr>' );
+		this.Link = $( '<a>' ).attr( {
+			'href'	: 'http://www.gsi.go.jp/',
+			'target': '_blank',
+			'style'	: 'color:#000; text-decoration:none'
+		} );
+		
+		this.LinkImg = $( '<img>' ).attr( {
+			'src'	: './image/help/gsi_top.png',
+			'border': 0,
+			'width'	: '20px',
+			'height': '20px',
+			'style'	: 'vertical-align:middle',
+			'alt'	: '国土地理院トップ'
+		} );
+		
+		this.LinkMoji = $( '<span>' ).attr( {
+			'style' : 'line-height:20px; position:relative; top:2px; left:5px'
+		} ).html( '国土地理院トップ' );
+		this.LinkFrame.append( this.LinkImg ).append( this.LinkMoji );
+		this.Link.append( this.LinkFrame );
+		this.frame.append( this.Link );
+
+		return this.frame;
+	}
+});﻿
+
 
 /************************************************************************
  L.Class
@@ -8498,12 +8656,10 @@ GSI.ViewListDialog = GSI.Dialog.extend( {
 	},
 	_createControl : function()
 	{
-		var frame = $( '<div>' ).addClass( 'viewlistdialog_control_frame' );
+		var frame = $( '<div>' ).css( { 'height': '25px' } ).addClass( 'viewlistdialog_control_frame' );
 
-        this._ButtonImgAdd = $("<img>").attr({ 'src' : './image/system/add.png' }).css({ 'position':'absolute','left':'5px','bottom':'5px','cursor':'pointer','opacity':'1'});
-        this._ButtonTxtAdd = $("<a>").css({"position":"absolute",'left':'24px','bottom':'2px','cursor':'pointer'}).html("追加");
-		
-        this._RbtnTxtAdd = $("<a>").css({"position":"absolute",'right':'4px','bottom':'2px','cursor':'pointer'}).addClass('resetbutton').html("リセット");
+        this._ButtonTxtAdd = $("<a>").css({"position":"absolute",'left':'5px','bottom':'5px','cursor':'pointer'}).addClass('view_list_dialog_button').html("<img src='./image/system/add.png' style='position:relative;left:-2px;top:3px;' />情報追加/ベースマップ切替");
+        this._RbtnTxtAdd = $("<a>").css({"position":"absolute",'right':'4px','bottom':'5px','cursor':'pointer'}).addClass('view_list_dialog_button').html("リセット");
 		
 		var frameRange            = $( '<div>' ).css({ 'position':'absolute','right':'5px','bottom':'5px','opacity':'1'});
         /*
@@ -8521,7 +8677,6 @@ GSI.ViewListDialog = GSI.Dialog.extend( {
 		this._removeAllButton = $( '<a>' ).attr( { href:'javascript:void(0);'} ).html( '全削除'   ).addClass( 'normalbutton showallbutton' );
         */
 
-        frame.append( this._ButtonImgAdd );
         frame.append( this._ButtonTxtAdd );
         frame.append( this._RbtnTxtAdd );
 
@@ -8534,7 +8689,6 @@ GSI.ViewListDialog = GSI.Dialog.extend( {
 		var dummy = $('<div>').html( '&nbsp;' ).css( { "font-size": '9.5pt' } );
 		frame.append(dummy );
 
-		this._ButtonImgAdd.click( L.bind( this._onAddClick, this ) );
 		this._ButtonTxtAdd.click( L.bind( this._onAddClick, this ) );
 		this._RbtnTxtAdd.click( L.bind( this._onResetClick, this ) );
 
@@ -8580,13 +8734,15 @@ GSI.ViewListDialog = GSI.Dialog.extend( {
 	},
 	_resetTiles : function()
 	{
+		GSI.GLOBALS.baseLayer.setActiveIndex(0);
 		var std = GSI.GLOBALS.baseLayer.baseLayerList[0];
-		this._removeAll();
-		this.mapLayerList.append( std, true, false );
 		
-		if ( !this.map.hasLayer(std._visibleInfo.layer) )
+		this._removeAll();
+		this.mapLayerList.append( std );
+		
+		if ( !GSI.GLOBALS.map.hasLayer(GSI.GLOBALS.baseLayer) )
 		{
-			this.map.addLayer(std._visibleInfo.layer);
+			GSI.GLOBALS.map.addLayer(GSI.GLOBALS.baseLayer);
 		}
 	},
 	_showAll : function( list )
@@ -12096,7 +12252,7 @@ GSI.MapMenu = L.Class.extend( {
  - GSI.MapMouse（地図上のマウス操作制御）
  ************************************************************************/
 GSI.MapMouse = L.Class.extend( {
-	clickMoveVisible : true,
+	clickMoveVisible : false,
 	clickMoveEnable : true,
 	rightClickTime : null,
 
@@ -12116,6 +12272,8 @@ GSI.MapMouse = L.Class.extend( {
 		map.on('dblclick',L.bind( this.onMapDblClick, this ) );
 
 		L.setOptions(this, options);
+		
+		this.map.doubleClickZoom.enable();
 	},
 	onZoomEnd : function(e)
 	{
@@ -19245,12 +19403,12 @@ function initialize_proc_map()
     );
 
 	// 表示可能レイヤーダイアログ
-	left = 8 + 100;
-	top  = GSI.GLOBALS.header.getHeight() + 80;
+	left = 8;
+	top  = GSI.GLOBALS.header.getHeight() + 136;
 	dlgVisible = GSI.GLOBALS.queryParams.getLayerTreeDialogVisible();
 	if(dlgVisible){
-        left = 8 + 100;
-		top  = GSI.GLOBALS.header.getHeight() + 80;
+        left = 8;
+		top  = GSI.GLOBALS.header.getHeight() + 136;
 	}
 	GSI.GLOBALS.layerTreeDialog
     = new GSI.LayerTreeDialog(      
@@ -19378,6 +19536,15 @@ function Vectors(){
         }
     }
     return ret;
+};
+
+function HelpButton(){
+    var windowSize = GSI.Utils.getScreenSize();
+    if ( GSI.GLOBALS.HelpDialog && GSI.GLOBALS.HelpDialog.getVisible() ){
+     GSI.GLOBALS.HelpDialog.hide();
+    }
+    GSI.GLOBALS.HelpDialog = new GSI.HelpDialog( GSI.GLOBALS.map,GSI.GLOBALS.mapMouse,{ left :windowSize.w - 215, top :45,effect : CONFIG.EFFECTS.DIALOG } );
+    GSI.GLOBALS.HelpDialog.show();
 };
 
 $(document).ready( initialize );
