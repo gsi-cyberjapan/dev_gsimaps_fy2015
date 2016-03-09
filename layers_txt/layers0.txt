@@ -34,6 +34,7 @@
           "attribution": "",
           "cocotile": true,
           "legendUrl": "http://maps.gsi.go.jp/development/ichiran.html#blank",
+          "maxNativeZoom":14,
           "html": ""
         },
         {
@@ -46,6 +47,7 @@
           "attribution": "",
           "cocotile": true,
           "legendUrl": "http://maps.gsi.go.jp/development/ichiran.html#english",
+          "maxNativeZoom":11,
           "html": ""
         },
         {
