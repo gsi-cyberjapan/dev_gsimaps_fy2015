@@ -5809,6 +5809,33 @@ GSI.HelpDialog = GSI.Dialog.extend( {
 
 		// リンク
 		this.LinkFrame = $( '<div>' ).attr( {
+			'style': 'height:20px; vertical-align:middle;'
+		} );
+		this.LinkFrameHr = $( '<hr>' );
+		this.Link = $( '<a>' ).attr( {
+			'href'	: 'http://maps.gsi.go.jp/pn/',
+			'target': '_blank',
+			'style'	: 'color:#000; text-decoration:none'
+		} );
+		
+		this.LinkImg = $( '<img>' ).attr( {
+			'src'	: './image/help/partner_icon.png',
+			'border': 0,
+			'width'	: '20px',
+			'height': '20px',
+			'style'	: 'vertical-align:middle',
+			'alt'	: '地理院地図パートナーネットワーク'
+		} );
+		
+		this.LinkMoji = $( '<span>' ).attr( {
+			'style': 'line-height:20px; position:relative; top:2px; left:5px'
+		} ).html( 'パートナーネットワーク' );
+		this.LinkFrame.append( this.LinkImg ).append( this.LinkMoji );
+		this.Link.append( this.LinkFrame );
+		this.frame.append( this.Link ).append( this.LinkFrameHr );
+
+		// リンク
+		this.LinkFrame = $( '<div>' ).attr( {
 			'style': 'height:20px; vertical-align:middle'
 		} );
 		this.LinkFrameHr = $( '<hr>' );
