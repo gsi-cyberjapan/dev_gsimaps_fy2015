@@ -53,7 +53,7 @@ var _Load_DataSrc                       = null;
 /*-----------------------------------------------------------------------------------------------*/
 var vVectorPointDivIcon                 = "HTML2CANVAS";      // TXT,HTML2CANVAS
 var vVectorPointDivIcon_SizeW           = 400;                // HTML2CANVAS：描画最大サイズ（横）[px]
-var vVectorPointDivIcon_SizeH           = 100;                // HTML2CANVAS：描画最大サイズ（縦）[px]
+var vVectorPointDivIcon_SizeH           = 400;                // HTML2CANVAS：描画最大サイズ（縦）[px]
 var vVectorPointDivIcon_StyleFontWeight = "normal";           // TXT        ：太さ：normal、bold、lighter、bolder、または100〜900の9段階（400がnormal）
 var vVectorPointDivIcon_StyleFontSize   = 24;                 // TXT        ：単位：px
 var vVectorPointDivIcon_StyleFontFamily = "'Century Gothic'"; // TXT        ：書体：「' '」で囲む。「,」で区切って複数指定可能。
@@ -209,10 +209,7 @@ function InitGet(){
 	    + "&lat="           + args["lat"]           ：中心緯度
         + "&lon="           + args["lon"]           ：中心経度
         + "&z="             + args["z"]             ：ズームレベル
-        + "&lat_lt="        + args["lat_lt"]        ：表示範囲.左上緯度
-        + "&lon_lt="        + args["lon_lt"]        ：表示範囲.左上緯度
-        + "&lat_rb="        + args["lat_rb"]        ：表示範囲.右下緯度
-        + "&lon_rb="        + args["lon_rb"]        ：表示範囲.右下経度
+        + "&pxsize="        + args["pxsize"]        ：タイルサイズ
           ------------------------------------------
           ハッシュ
           ------------------------------------------
@@ -276,29 +273,21 @@ function InitGet(){
             vDemUrl  = vDemUrl_Default;
         }
 
-	    // 3Dモデル化のタイル範囲を決める。
-	    // 表示している地図の範囲のタイルを並べたものの長辺を基準とした正方形を範囲とする。
-	    ret["lon_lt_x"] = GetTileX(ret["z"], ret["lon_lt"]).n;
-	    ret["lat_lt_y"] = GetTileY(ret["z"], ret["lat_lt"]).n;
-	    ret["lon_rb_x"] = GetTileX(ret["z"], ret["lon_rb"]).n;
-	    ret["lat_rb_y"] = GetTileY(ret["z"], ret["lat_rb"]).n;
-
-        // タイル数変動
-        if(nTextureTileN == null){
-	        var nTilesX = ret["lon_rb_x"] - ret["lon_lt_x"] + 1;
-	        var nTilesY = ret["lat_rb_y"] - ret["lat_lt_y"] + 1;
-
-            // タイル数
-            var fCalxX = false;
-            var fCalxY = false;
-            if(nTilesX != nTilesY){
-                if(nTilesX < nTilesY){ fCalxX = true; }else{ fCalxY = true; }
+        ret["tile_n"]    = nTextureTileN;
+        ret["tile_n_px"] = 0;
+        if(ret["pxsize"]){
+            ret["tile_n_px"] = parseInt(ret["pxsize"], 10);
+            if(isFinite(ret["tile_n_px"])){
+                if(ret["tile_n_px"] < 256){
+                    ret["tile_n_px"] = 256;
+                }
+                else{
+                    if(ret["tile_n_px"] % 2 != 0){
+                        ret["tile_n_px"]++;
+                    }
+                }
+                ret["tile_n"] = Math.ceil(ret["tile_n_px"] / 256);
             }
-	        ret["tile_n"] = Math.max(nTilesX, nTilesY);
-        }
-        // タイル数固定
-        else{
-            ret["tile_n"] = nTextureTileN;
         }
 
         // トリミング
@@ -364,6 +353,24 @@ function InitGet(){
             ret["trim_y_e"] = 256 - nCTYS_PXE_E; // 下トリムピクセル
             ret["trim_y_w"] = ret["trim_n"] * 256; // 幅トリムピクセル
             ret["trim_y_h"] = ret["trim_n"] * 256; // 高トリムピクセル
+            
+            var vWP = ret["trim_n"] * 256;
+            var vWC = ret["tile_n_px"];
+            var vT  = Math.ceil((vWP - vWC) * 0.5);
+            ret["trim_n"] = Math.floor(ret["tile_n_px"] / 256);
+            if(ret["tile_n_px"] % 256 != 0){
+                ret["trim_n_px"] = (ret["tile_n_px"] - (ret["trim_n"] * 256)) * 0.5;
+            }
+            else{
+                ret["trim_n_px"] = 0;
+            }
+
+            ret["trim_x_s"] += vT;
+            ret["trim_x_e"] += vT;
+            ret["trim_y_s"] += vT;
+            ret["trim_y_e"] += vT;
+            ret["trim_y_w"] = Math.ceil(vWC * 0.5) * 2;
+            ret["trim_y_h"] = Math.ceil(vWC * 0.5) * 2;             
             
             vTextureCanvas_W = 256 * ret["tile_n"];
             vTextureCanvas_H = 256 * ret["tile_n"];
@@ -431,7 +438,7 @@ var InitLoadLayersTxt_Proc = function(){
 		      type     : "GET"
 		    , url      : url
 		    , dataType : "text"
-		    , cache    : false
+		    , cache    : true
 		    , success  : InitLoadLayersTxt_Proc_Success
 		    , error    : InitLoadLayersTxt_Proc_Error
 	    });
@@ -604,7 +611,7 @@ var InitLoadLayersTxt_ProcSrc = function(){
 		      type     : "GET"
 		    , url      : url
 		    , dataType : "text"
-		    , cache    : false
+		    , cache    : true
 		    , success  : InitLoadLayersTxt_ProcSrc_Success
 		    , error    : InitLoadLayersTxt_ProcSrc_Error
 	    });
@@ -958,7 +965,7 @@ function RequestLayers(url, z, x, y, nTilesOTS){
                         var src = vURLI[0] + z + "/" + xx + "/" + yy + vURLI[1];
                         if(vURLExt == "img"){
 			                var img         = new Image();
-			                img.crossOrigin = "Anonymous";
+			                img.crossOrigin = "anonymous";
 			                img.src         = src;
                             img.id          = vID;
 			                img.onload      = function(){ RequestLayersData_Img(this); }
@@ -1000,7 +1007,7 @@ function RequestLayersVector(){
 		                  type     : "GET"
 	                    , url      : dLayersStyle.src
 	                    , dataType : "text"
-	                    , cache    : false
+	                    , cache    : true
                     }
                     )
                     .done(
@@ -1062,7 +1069,7 @@ function RequestLayersVector(){
 		                          type     : "GET"
 	                            , url      : dLayers[nLayers].src
 	                            , dataType : "text"
-	                            , cache    : false
+	                            , cache    : true
                             }
                             )
                             .done(
@@ -1139,25 +1146,29 @@ function RequestLayersVectorStyleSet(vLayersData_Vector){
                                 for(var n = 0; n < vDataFeatures.length; n++){
                                     try{
                                         var vType = vDataFeatures[n].geometry.type;
-                                        if(vType == "LineString" ||
-                                           vType == "Polygon"    ||
-                                           vType == "Point"
+                                        if(vType == "LineString"      ||
+                                           vType == "MultiLineString" ||
+                                           vType == "Polygon"         ||
+                                           vType == "MultiPolygon"    ||
+                                           vType == "Point"           ||
+                                           vType == "MultiPoint"
                                         ){
                                             if(vStyle.geojsonOptions.style){
                                                 try{
                                                     var vOptions = vStyle.geojsonOptions.style(vDataFeatures[n]);
                                                     if(vOptions){
-                                                        // LineString, Polygon, Point(Circle, CircleMarker)
-                                                        if(vOptions.color      ){ data.features[n].properties._color       = RequestLayersVectorStyleSetColorToHex(vOptions.color);     }
-                                                        if(vOptions.weight     ){ data.features[n].properties._weight      = vOptions.weight;      }
-                                                        if(vOptions.opacity    ){ data.features[n].properties._opacity     = vOptions.opacity;     }
+                                                        // LineString, MultiLineString, Polygon, MultiPolygon, Point(Circle, CircleMarker), MultiPoint(Circle, CircleMarker)
+                                                        if(vOptions.stroke      != null){ data.features[n].properties._stroke      = vOptions.stroke;      }
+                                                        if(vOptions.color       != null){ data.features[n].properties._color       = RequestLayersVectorStyleSetColorToHex(vOptions.color);     }
+                                                        if(vOptions.weight      != null){ data.features[n].properties._weight      = vOptions.weight;      }
+                                                        if(vOptions.opacity     != null){ data.features[n].properties._opacity     = vOptions.opacity;     }
 
-                                                        // LineString, Polygon, Point(Circle, CircleMarker)
-                                                        if(vOptions.fillColor  ){ data.features[n].properties._fillColor   = RequestLayersVectorStyleSetColorToHex(vOptions.fillColor); }
-                                                        if(vOptions.fillOpacity){ data.features[n].properties._fillOpacity = vOptions.fillOpacity; }
+                                                        // LineString, MultiLineString, Polygon, MultiPolygon, Point(Circle, CircleMarker), MultiPoint(Circle, CircleMarker)
+                                                        if(vOptions.fillColor   != null){ data.features[n].properties._fillColor   = RequestLayersVectorStyleSetColorToHex(vOptions.fillColor); }
+                                                        if(vOptions.fillOpacity != null){ data.features[n].properties._fillOpacity = vOptions.fillOpacity; }
 
-                                                        // Point(Circle, CircleMarker)
-                                                        if(vOptions.radius     ){ data.features[n].properties._radius  = vOptions.radius;      }
+                                                        // Point(Circle, CircleMarker), MultiPoint(Circle, CircleMarker)
+                                                        if(vOptions.radius      != null){ data.features[n].properties._radius  = vOptions.radius;      }
                                                     }
                                                 }
                                                 catch(e){
@@ -1166,10 +1177,13 @@ function RequestLayersVectorStyleSet(vLayersData_Vector){
                                             }
                                         }
 
-                                        if(vType == "Point"){
-                                            // Point(DivIcon, CircleMarker, Circle)
+                                        if(vType == "Point"      ||
+                                           vType == "MultiPoint"
+                                        ){
+                                            // Point(DivIcon, CircleMarker, Circle), MultiPoint(DivIcon, CircleMarker, Circle)
                                             if(vStyle.geojsonOptions.pointToLayer){
                                                 try{
+                                                    vDataFeatures[n].properties._client = "gsi.3d";
                                                     var vMarker = vStyle.geojsonOptions.pointToLayer(vDataFeatures[n], vDataFeatures[n].geometry.coordinates);
                                                     if(vMarker){
                                                         if(vMarker._layers){
@@ -1180,35 +1194,46 @@ function RequestLayersVectorStyleSet(vLayersData_Vector){
                                                             }
                                                         }
                                                         if(vMarker.options){
-                                                            // Point(DivIcon, Icon)
+                                                            // (DivIcon, Icon)
                                                             if(vMarker.options.icon && vMarker.options.icon.options){
                                                                 vMarker = vMarker.options.icon.options;
 
-                                                                // Point(DivIcon)
-                                                                if(vMarker.html){
-                                                                    data.features[n].properties._markerType = "DivIcon";
-                                                                    data.features[n].properties._html       = vMarker.html;
+                                                                var fMarker = true;
+                                                                if(data.features[n].properties._markerType){
+                                                                    // (Font)
+                                                                    if(data.features[n].properties._markerType == "Font"){
+                                                                        fMarker = false;
+                                                                    }
                                                                 }
 
-                                                                // Point(Icon)
-                                                                if(vMarker.iconUrl){
-                                                                    data.features[n].properties._markerType = "Icon";
-                                                                    data.features[n].properties._iconUrl    = vMarker.iconUrl;
-                                                                }
+                                                                if(fMarker){
+                                                                    // (DivIcon)
+                                                                    if(vMarker.html){
+                                                                        data.features[n].properties._markerType = "DivIcon";
+                                                                        data.features[n].properties._html       = vMarker.html;
+                                                                    }
 
-                                                                // Point(DivIcon, Icon)
-                                                                if(vMarker.iconSize && vMarker.iconSize.length == 2){
-                                                                    data.features[n].properties._iconSize    = new Array(2);
-                                                                    data.features[n].properties._iconSize[0] = vMarker.iconSize[0];
-                                                                    data.features[n].properties._iconSize[1] = vMarker.iconSize[1];
-                                                                }
-                                                                if(vMarker.iconAnchor && vMarker.iconAnchor.length == 2){
-                                                                    data.features[n].properties._iconAnchor    = new Array(2);
-                                                                    data.features[n].properties._iconAnchor[0] = vMarker.iconAnchor[0];
-                                                                    data.features[n].properties._iconAnchor[1] = vMarker.iconAnchor[1];
+                                                                    // (Icon)
+                                                                    if(vMarker.iconUrl){
+                                                                        data.features[n].properties._markerType = "Icon";
+                                                                        data.features[n].properties._iconUrl    = vMarker.iconUrl;
+                                                                    }
+
+
+                                                                    // (DivIcon, Icon)
+                                                                    if(vMarker.iconSize && vMarker.iconSize.length == 2){
+                                                                        data.features[n].properties._iconSize    = new Array(2);
+                                                                        data.features[n].properties._iconSize[0] = vMarker.iconSize[0];
+                                                                        data.features[n].properties._iconSize[1] = vMarker.iconSize[1];
+                                                                    }
+                                                                    if(vMarker.iconAnchor && vMarker.iconAnchor.length == 2){
+                                                                        data.features[n].properties._iconAnchor    = new Array(2);
+                                                                        data.features[n].properties._iconAnchor[0] = vMarker.iconAnchor[0];
+                                                                        data.features[n].properties._iconAnchor[1] = vMarker.iconAnchor[1];
+                                                                    }
                                                                 }
                                                             }
-                                                            // Point(Circle, CircleMarker)
+                                                            // (Circle, CircleMarker)
                                                             else if((vMarker._mRadius || vMarker._mRadius == null)){
                                                                 var fMarker = false;
                                                                 // Circle
@@ -1227,7 +1252,7 @@ function RequestLayersVectorStyleSet(vLayersData_Vector){
                                                                 if(fMarker){
                                                                     vMarker = vMarker.options;
 
-                                                                    // Point(Circle, CircleMarker)
+                                                                    // (Circle, CircleMarker)
                                                                     if(vMarker.color      ){ data.features[n].properties._color       = RequestLayersVectorStyleSetColorToHex(vMarker.color);     }
                                                                     if(vMarker.weight     ){ data.features[n].properties._weight      = vMarker.weight;      }
                                                                     if(vMarker.opacity    ){ data.features[n].properties._opacity     = vMarker.opacity;     }
@@ -1245,7 +1270,7 @@ function RequestLayersVectorStyleSet(vLayersData_Vector){
 
                                             }
 
-                                            // Point(Icon)
+                                            // (Icon)
                                             if(vStyle.geojsonOptions.onEachFeature){
                                                 try{
                                                     var vMarker = new L.marker();
@@ -1293,6 +1318,318 @@ function RequestLayersVectorStyleSet(vLayersData_Vector){
     }
 
     return data;
+};
+
+CanvasRenderingContext2D.prototype.fillTextVertical = function(text, x, y, deg){
+    var oCanvas = this;
+    var oCanvasFont     = oCanvas.font.match(/(\d+)px\s?.*/);
+    var vCanvasFontSize = 0;
+    if(oCanvasFont.length >= 1){
+        vCanvasFontSize = parseInt(oCanvasFont[1], 10);
+    }
+
+    var _text_n = -1;
+    var _text_c = "";
+
+    var _text_t = (
+        function(){
+            var constructor = function(v, opt){
+                this.v      = v;
+                this.length = v.length;
+
+                opt = opt || {};
+
+                this.t_Period   = opt.t_Period   || false;
+                this.t_TopRight = opt.t_TopRight || false;
+                this.t_Rotate90 = opt.t_Rotate90 || false;
+                this.t_Join     = opt.t_Join     || false;
+
+                this.v_RHeight  = opt.v_RHeight  || false;
+            };
+            return constructor;
+        }
+    )();
+
+    CanvasRenderingContext2D.prototype._Text = function(text){
+        var ret = [];
+
+        var _CL = new Array(); 
+
+        _CL.push(this._TextData(_CL, "Bracket" , "‘“（〔［｛〈《「『【⦅〘〖«〝" , 1.3));
+        _CL.push(this._TextData(_CL, "Bracket" , "’”）〕］｝〉》」』】⦆〙〗≫〟", 1  ));
+        _CL.push(this._TextData(_CL, "Rotate90", "‐〜゠–"));
+        _CL.push(this._TextData(_CL, "Plane"   , "？！‼⁇⁈⁉"));
+        _CL.push(this._TextData(_CL, "Plane"   , "・：；"));
+        _CL.push(this._TextData(_CL, "Period"  , "。．"));
+        _CL.push(this._TextData(_CL, "Period"  , "、，"));
+        _CL.push(this._TextData(_CL, "Plane"   , "ヽヾゝゞ々〻"));
+        _CL.push(this._TextData(_CL, "Rotate90", "ー"));
+        _CL.push(this._TextData(_CL, "TopRight", "ぁぃぅぇぉァィゥェォっゃゅょゎゕゖッャュョヮヵヶㇰㇱㇲㇳㇴㇵㇶㇷㇸㇹㇺㇻㇼㇽㇾㇿㇷ゚"));
+        _CL.push(this._TextData(_CL, "Plane"   , "￥＄￡＃€№"));
+        _CL.push(this._TextData(_CL, "Plane"   , "°′″℃￠％‰㏋ℓ"));
+        _CL.push(this._TextData(_CL, "Plane"   , "　"));
+        _CL.push(this._TextData(_CL, "Plane"   , "あいうえおかがきぎくぐけげこごさざしじすずせぜそぞただちぢつづてでとどなにぬねのはばぱひびぴふぶぷへべぺほぼぽまみむめもやゆよらりるれろわゐゑをんゔか゚き゚く゚け゚こ゚"));
+        _CL.push(this._TextData(_CL, "Plane"   , "アイウエオカガキギクグケゲコゴサザシジスズセゼソゾタダチヂツヅテデトドナニヌネノハバパヒビピフブプヘベペホボポマミムメモヤユヨラリルレロワヰヱヲンヴカ゚キ゚ク゚ケ゚コ゚セ゚ツ゚ト゚ヷヸヹヺ"));
+        _CL.push(this._TextData(_CL, "Plane"   , "＝≠＜＞≦≧∈∋⊆⊇⊂⊃∪∩⊄⊅⊊⊋∉⌅⌆∧∨⇒⇔∥∦≡≒≪≫∽∝≢≃≅≈≶≷⊥↔⋚⋛"));
+        _CL.push(this._TextData(_CL, "Plane"   , "＋－±×÷⊕⊖⊗∓"));
+        _CL.push(this._TextData(_CL, "Plane"   , " "));
+        _CL.push(this._TextData(_CL, "Bracket" , "（〔［", 1.3));
+        _CL.push(this._TextData(_CL, "Bracket" , "）〕］", 1  ));
+
+        var _CLAll = "";
+        for(var n = 0; n < _CL.length; n++){
+            _CLAll += _CL[n].v;
+        }
+
+        this._text_n = -1;
+        this._text_c = "";
+        var text_len = text.length;
+        while(this._text_n < text_len - 1){
+            this._Text_ProcNext(text);
+
+            var pos = _CLAll.indexOf(this._text_c);
+            if(pos == -1){
+                 ret.push(this.Text_TypePlane()); 
+            }
+            else{
+                var fCL = false;
+                for(var n = 1; n < _CL.length; n++){
+                    if(pos < _CL[n].p){
+                        var o = _CL[n - 1];
+                        if(     o.t == "Plane"   ){ ret.push(this.Text_TypePlane   ());          }
+                        else if(o.t == "Bracket" ){ ret.push(this.Text_TypeBracket (o.arg));     }
+                        else if(o.t == "Period"　){ ret.push(this.Text_TypePeriod  ());          }
+                        else if(o.t == "TopRight"){ ret.push(this.Text_TypeTopRight());          }
+                        else if(o.t == "Rotate90"){ ret.push(this.Text_TypeRotate90());          }
+                        fCL = true;
+                        break;
+                    }
+                }
+                if(!fCL){
+                    ret.push(this.Text_TypePlane());
+                }
+            }
+        }       
+        return ret;
+    };
+
+    CanvasRenderingContext2D.prototype._TextData = function(_CL, type, text, arg){
+        if(!arg){
+            arg = null;
+        }
+        var data = {};
+        data.t   = type;
+        data.v   = text;
+        data.p   = 0;
+        data.arg = arg;
+        if(_CL.length > 0){
+            data.p = _CL[_CL.length - 1].p + _CL[_CL.length - 1].v.length;
+        }
+        return data;
+    };
+
+    CanvasRenderingContext2D.prototype._Text_ProcPrev = function(text){
+        this._text_n -= 1;
+        this._text_c  = text.charAt(this._text_n);
+        return this._text_c;
+    };
+
+    CanvasRenderingContext2D.prototype._Text_ProcNext = function(text, c){
+        this._text_n += 1;
+        this._text_c  = text.charAt(this._text_n);
+        if(c && c !== this._text_c){
+            // Error
+        }
+        return this._text_c;
+    };
+
+    CanvasRenderingContext2D.prototype.Text_TypePlane    = function(    ){ return new _text_t(this._text_c                                       );  };
+    CanvasRenderingContext2D.prototype.Text_TypePeriod   = function(    ){ return new _text_t(this._text_c, { t_Period   : true                  }); };
+    CanvasRenderingContext2D.prototype.Text_TypeBracket  = function(rate){ return new _text_t(this._text_c, { t_Rotate90 : true, v_RHeight : rate}); };
+    CanvasRenderingContext2D.prototype.Text_TypeTopRight = function(    ){ return new _text_t(this._text_c, { t_TopRight : true                  }); };
+    CanvasRenderingContext2D.prototype.Text_TypeRotate90 = function(    ){ return new _text_t(this._text_c, { t_Rotate90 : true                  }); };
+
+    CanvasRenderingContext2D.prototype.proc = function(text, x, y, deg){
+        if(deg < -360 || deg > 360){
+            var deg_sign = 1;
+            if(deg < 0){
+                deg_sign = -1;
+            }
+            deg = (Math.abs(deg) - (Math.floor(Math.abs(deg) / 360) * 360)) * deg_sign;
+        }
+        if(deg == 360){
+            deg = 0;
+        }
+        if(deg < 0){
+            deg = 360 + deg;
+        }
+
+        if(deg == 0){
+        }
+        else{
+            var vAreaY = 0;
+            if(deg > 0 && deg <= 360){
+                vAreaY = vCanvasFontSize;
+            }
+        }
+
+        y = y + vCanvasFontSize;
+
+        if(deg != 0){
+            var vN = Math.floor(deg / 90);
+            var vF = deg % 90;
+            if(vF == 0){
+                if(deg == 90){
+                    x += -(vCanvasFontSize * 1);
+                    y += -(vCanvasFontSize * 1);
+                }
+                if(deg == 180){
+                    y += -(vCanvasFontSize * 2);
+                }
+                if(deg == 270){
+                    x += +(vCanvasFontSize * 1);
+                    y += -(vCanvasFontSize * 1);
+                }
+            }
+            else{
+                var _x_r = 0;
+                var _y_r = 0;
+                if(deg >    0){ _x_r = -0.015;  _y_r = -0.005;  }
+                if(deg >=  10){ _x_r = -0.015;  _y_r = -0.005;  }
+                if(deg >=  20){ _x_r = -0.015;  _y_r = -0.005;  }
+                if(deg >=  30){ _x_r = -0.015;  _y_r = -0.005;  }
+                if(deg >=  40){ _x_r = -0.016;  _y_r = -0.006;  }
+                if(deg >=  50){ _x_r = -0.015;  _y_r = -0.008;  }
+                if(deg >=  60){ _x_r = -0.014;  _y_r = -0.009;  }
+                if(deg >=  70){ _x_r = -0.013;  _y_r = -0.010;  }
+                if(deg >=  80){ _x_r = -0.012;  _y_r = -0.011;  }
+
+                if(deg >= 100){ _x_r = -0.010;  _y_r = -0.012;  }
+                if(deg >= 110){ _x_r = -0.009;  _y_r = -0.012;  }
+                if(deg >= 120){ _x_r = -0.007;  _y_r = -0.013;  }
+                if(deg >= 130){ _x_r = -0.006;  _y_r = -0.013;  }
+                if(deg >= 140){ _x_r = -0.005;  _y_r = -0.013;  }
+                if(deg >= 150){ _x_r = -0.0035; _y_r = -0.013;  }
+                if(deg >= 160){ _x_r = -0.0023; _y_r = -0.0125; }
+                if(deg >= 170){ _x_r = -0.0010; _y_r = -0.0120; }
+
+                if(deg >= 190){ _x_r = +0.0010; _y_r = -0.0105; }
+                if(deg >= 200){ _x_r = +0.0020; _y_r = -0.0098; }
+                if(deg >= 210){ _x_r = +0.0025; _y_r = -0.0090; }
+                if(deg >= 220){ _x_r = +0.0030; _y_r = -0.0080; }
+                if(deg >= 230){ _x_r = +0.0033; _y_r = -0.0070; }
+                if(deg >= 240){ _x_r = +0.0040; _y_r = -0.0065; }
+                if(deg >= 250){ _x_r = +0.0040; _y_r = -0.0055; }
+                if(deg >= 260){ _x_r = +0.0040; _y_r = -0.0045; }
+
+                if(deg >= 280){ _x_r = +0.0035; _y_r = -0.0030; }
+                if(deg >= 290){ _x_r = +0.0032; _y_r = -0.0023; }
+                if(deg >= 300){ _x_r = +0.0028; _y_r = -0.0018; }
+                if(deg >= 310){ _x_r = +0.0024; _y_r = -0.0012; }
+                if(deg >= 320){ _x_r = +0.0020; _y_r = -0.0008; }
+                if(deg >= 330){ _x_r = +0.0016; _y_r = -0.0004; }
+                if(deg >= 340){ _x_r = +0.0010; _y_r = -0.0002; }
+                if(deg >= 350){ _x_r = +0.0004; _y_r = -0.0001; }
+
+
+                x += (vCanvasFontSize * deg * _x_r);
+                y += (vCanvasFontSize * deg * _y_r);
+            }
+        }
+
+        if(text.length > 0 && vCanvasFontSize > 0){
+            var oText = this._Text(text);
+
+            for(var i = 0, c = 0.0, l = oText.length; i < l; i++){
+                var vText = oText[i];
+                if(vText == null){
+                    continue;
+                }
+                if(vText.t_Rotate90){
+                    oCanvas.save();
+                    oCanvas.translate( x ,  y);
+                    oCanvas.rotate((90 + deg) * Math.PI / 180);
+                    oCanvas.translate(-x , -y);
+
+                    for(var j = 0; j < vText.length; j++){
+                        var cx = 0;
+                        var cy = y - vCanvasFontSize * 0.1;
+                        if(vText.v_RHeight){
+                            cx = x + c + j -(vText.v_RHeight) * vCanvasFontSize;
+                            if(oCanvas.lineWidth == 1){
+                                oCanvas.fillText(vText.v[j], cx, cy);
+                            }
+                            else{
+                                oCanvas.strokeText(vText.v[j], cx, cy);
+                            }
+                            c -= (1.7 - vText.v_RHeight) * vCanvasFontSize;
+                        }
+                        else{
+                            cx = (x + c + (j - 0.80) * vCanvasFontSize);
+                            if(oCanvas.lineWidth == 1){
+                                oCanvas.fillText(vText.v[j], cx, cy);
+                            }
+                            else{
+                                oCanvas.strokeText(vText.v[j], cx, cy);
+                            }
+                        }
+                    }
+                    oCanvas.restore();
+                }
+                else if(vText.t_TopRight){
+                    oCanvas.save();
+                    oCanvas.translate( x ,  y);
+                    oCanvas.rotate(deg * Math.PI / 180);
+                    oCanvas.translate(-x , -y);
+
+                    var cx = x + vCanvasFontSize * 0.2;
+                    var cy = y + c;
+                    if(oCanvas.lineWidth == 1){
+                        oCanvas.fillText(vText.v, cx, cy);
+                    }
+                    else{
+                        oCanvas.strokeText(vText.v, cx, cy);
+                    }
+                    oCanvas.restore();
+                }
+                else if(vText.t_Period){
+                    oCanvas.save();
+                    oCanvas.translate( x ,  y);
+                    oCanvas.rotate(deg * Math.PI / 180);
+                    oCanvas.translate(-x , -y);
+
+                    var cx = x + vCanvasFontSize * 0.5;
+                    var cy = y + c;
+                    if(oCanvas.lineWidth == 1){
+                        oCanvas.fillText(vText.v, cx, cy);
+                    }
+                    else{
+                        oCanvas.strokeText(vText.v, cx, cy);
+                    }
+                    oCanvas.restore();
+                }
+                else{
+                    oCanvas.save();
+                    oCanvas.translate( x ,  y);
+                    oCanvas.rotate(deg * Math.PI / 180);
+                    oCanvas.translate(-x , -y);
+
+                    var cx = x;
+                    var cy = y + c;
+                    if(oCanvas.lineWidth == 1){
+                        oCanvas.fillText(vText.v, cx, cy);
+                    }
+                    else{
+                        oCanvas.strokeText(vText.v, cx, cy);
+                    }
+                    oCanvas.restore();
+                }
+                c += vText.length * vCanvasFontSize;
+            }
+        }
+    };
+
+    this.proc(text, x, y, deg);
 };
 
 function RequestLayersVectorStyleSetColorToHex(color) {
@@ -1553,7 +1890,7 @@ function RequestTileDemResult_Progress(){
 function LoadLayers(z, x, y, nTilesOTS){
 
     oTextureCanvas = document.createElement("canvas");
-    oTextureCanvas.style.display = "none";//??
+    oTextureCanvas.style.display = "none";
     oTextureCanvas.width         = vTextureCanvas_W;
     oTextureCanvas.height        = vTextureCanvas_H;
     oFrame.appendChild(oTextureCanvas);
@@ -1594,14 +1931,28 @@ function LoadLayers(z, x, y, nTilesOTS){
 
     // トリミング
     if(args["trim_x_s"] && args["trim_x_e"] && args["trim_y_s"] && args["trim_y_e"]){
-        var vDemN = nTilesOTS * 256;
-        vDem = LoadLayers_Dem_Trim(vDem, vDemN, args["trim_x_s"], args["trim_x_e"], args["trim_y_s"], args["trim_y_e"]);
+        var vDemN  = nTilesOTS * 256;
+        var vDemXS = args["trim_x_s"];
+        var vDemXE = args["trim_x_e"];
+        var vDemYS = args["trim_y_s"];
+        var vDemYE = args["trim_y_e"];
+
+        if(args["trim_n_px"] > 0){
+            var vT = args["trim_n_px"];
+            vDemXS += vT;
+            vDemXE += vT;
+            vDemYS += vT;
+            vDemYE += vT;
+        }
+
+        vDem = LoadLayers_Dem_Trim(vDem, vDemN, vDemXS, vDemXE, vDemYS, vDemYE);
 
         nTilesOTS = args["trim_n"];
     }
 
-    vSceneMesh = LoadLayers_DemNormarize(vDem, nTilesOTS, nTilesOTS);
-
+    var tn    = nTilesOTS;
+    var tsize = 256;
+    vSceneMesh = LoadLayers_DemNormarize(vDem, tn, tn, tsize);
 
     LoadLayersProc(oTextureCanvas_2D, x, y, wTileImg, hTileImg);
 };
@@ -1685,7 +2036,7 @@ function LoadLayersProc(oTextureCanvas_2D, x, y, wTileImg, hTileImg){
                                 if(data){
                                     if(vURLExt == "geojson"){
                                         if(data.features){
-                                            if(LoadLayers_Vectors(oTextureCanvas_2D, data.features)){
+                                            if(LoadLayers_Vectors(oTextureCanvas_2D, data.features, vLayers[nLayers])){
                                                 fProc = false;
                                             }
                                         }
@@ -1715,7 +2066,7 @@ function LoadLayersProc(oTextureCanvas_2D, x, y, wTileImg, hTileImg){
                             else if(vURLExt == "kml"    ){ data = LoadLayersProcVectorDataKML(vLayer[0].data); }
 
                             if(data && data != null){
-                                if(LoadLayers_Vectors(oTextureCanvas_2D, data.features)){
+                                if(LoadLayers_Vectors(oTextureCanvas_2D, data.features, vLayers[nLayers])){
                                     fProc = false;
                                 }
                             }
@@ -1925,12 +2276,12 @@ function LoadLayers_VectorsOpener(oCanvas){
         if(v != null){
             v.DataOpenner = true;
 
-            LoadLayers_Vectors(oCanvas, v);
+            LoadLayers_Vectors(oCanvas, v, null);
         }
     }
 };
 
-function LoadLayers_Vectors(oCanvas, oData){
+function LoadLayers_Vectors(oCanvas, oData, vUrl){
     vVectorHTML.v = null;
     if(oData.DataOpenner){
         vVectorHTML.vOpenner = true;
@@ -1954,148 +2305,234 @@ function LoadLayers_Vectors(oCanvas, oData){
         vRange_Lat_T = GetTile2Lat(vRange_Y_T     , vZ);
         vRange_Lat_B = GetTile2Lat(vRange_Y_B + nY, vZ);
 
-        var vDeg2PxX = vTextureCanvas_W / (vRange_Lon_R - vRange_Lon_L);
-        var vDeg2PxY = vTextureCanvas_H / (vRange_Lat_T - vRange_Lat_B);
+        var vDeg2PxX = vTextureCanvas_W / (                          vRange_Lon_R      -                           vRange_Lon_L     );
+        var vDeg2PxY = vTextureCanvas_H / (LoadLayers_Vectors_MercaY(vRange_Lat_T, vZ) - LoadLayers_Vectors_MercaY(vRange_Lat_B, vZ));
         var vRPX     = vTextureCanvas_W / (args["tile_n"] * 256);
 
         for(var n = 0; n < oData.length; n++){
             var vData = oData[n];
             try{
+                if(vUrl != null){
+                    oCanvas.globalAlpha = vUrl.opacity;
+                }
+
                 var vDataType = vData["geometry"]["type"];
-                if(vDataType == "Point"){
+                if(vDataType == "Point" || vDataType == "MultiPoint"){
                     var vDataGeometry = vData["geometry"]["coordinates"];
-                    if(vDataGeometry.length >= 2){
-                        /*-------------------------------------------------------------------------------------------------------*/
-                        if(     vData.properties["_markerType"] == "DivIcon"){
-                            var vDataGeometryLon = parseFloat(vDataGeometry[0]);
-                            var vDataGeometryLat = parseFloat(vDataGeometry[1]);
 
-                            var vX        = LoadLayers_Vectors_2PX(vDataGeometryLon, vRange_Lon_L, vDeg2PxX, "lon");
-                            var vY        = LoadLayers_Vectors_2PX(vDataGeometryLat, vRange_Lat_T, vDeg2PxY, "lat");                                
-                            var vXA       = parseInt(vData["properties"]["_iconAnchor"][0], 10);
-                            var vYA       = parseInt(vData["properties"]["_iconAnchor"][1], 10);
-                            var vText     = vData["properties"]["_html"];
+                    var nGeometryMax_Multi = 1;
+                    if(vDataType == "MultiPoint"){
+                        nGeometryMax_Multi = vDataGeometry.length;
+                    }
 
-                            if(vVectorPointDivIcon == "HTML2CANVAS"){
-                                if(vVectorHTML.v == null){
-                                    vVectorHTML.v = new Array();
-                                }
-                                if(vVectorHTML.o == null){
-                                    //??
-                                    vVectorHTML.o                    = document.body;
-                                    vVectorHTML.oCanvas              = oCanvas;
-                                    vVectorHTML.oDiv                 = document.createElement("div");
-                                    vVectorHTML.oDiv.style.display   = "block";
-                                    vVectorHTML.oDiv.style.position  = "absolute";
-                                    vVectorHTML.oDiv.style.top       = (-vVectorPointDivIcon_SizeW - 10) + "px";
-                                    vVectorHTML.oDiv.style.left      = (-vVectorPointDivIcon_SizeH - 10) + "px";
-                                    vVectorHTML.o.appendChild(vVectorHTML.oDiv);
-                                    vVectorHTML.oIFrame              = document.createElement("iframe");
-                                    vVectorHTML.oIFrame.style.width  = vVectorPointDivIcon_SizeW + "px";
-                                    vVectorHTML.oIFrame.style.height = vVectorPointDivIcon_SizeH + "px";
-                                    vVectorHTML.oDiv.appendChild(vVectorHTML.oIFrame);
-                                }
-
-                                var v = {
-                                      x    : (vX - vXA)
-                                    , y    : (vY - vYA)
-                                    , HTML : vText
-                                }
-
-                                vVectorHTML.v.push(v);
-                                vVectors++;
-                            }
-                            else{
-                                    vText     = $('<div>').html(vText).text();
-                                var vTextSize = vRPX * vVectorPointDivIcon_StyleFontSize;
-
-                                oCanvas.beginPath();
-                                oCanvas.font= vVectorPointDivIcon_StyleFontWeight + " " + vTextSize + "px " + vVectorPointDivIcon_StyleFontFamily;
-                                oCanvas.fillStyle   = '#000000';
-                                oCanvas.fillText(vText, (vX - vXA), (vY - vYA) + vTextSize);
-                            }
+                    for(var nGeometryMulti = 0; nGeometryMulti < nGeometryMax_Multi; nGeometryMulti++){
+                        var vDataGeometryArray = vDataGeometry;
+                        if(vDataType == "MultiPoint"){
+                            vDataGeometryArray = vDataGeometry[nGeometryMulti];
                         }
-                        /*-------------------------------------------------------------------------------------------------------*/
-                        else if(vData.properties["_markerType"] == "Icon"){
-                            var vDataGeometryLon = parseFloat(vDataGeometry[0]);
-                            var vDataGeometryLat = parseFloat(vDataGeometry[1]);
 
-                            var vX   = LoadLayers_Vectors_2PX(vDataGeometryLon, vRange_Lon_L, vDeg2PxX, "lon");
-                            var vY   = LoadLayers_Vectors_2PX(vDataGeometryLat, vRange_Lat_T, vDeg2PxY, "lat");
-                            var vURL = vData["properties"]["_iconUrl"];
-                            var vW   = Math.floor(vRPX * parseInt(vData["properties"]["_iconSize"][0]));
-                            var vH   = Math.floor(vRPX * parseInt(vData["properties"]["_iconSize"][1]));
-                            var vXA  = parseInt(vData["properties"]["_iconAnchor"][0], 10);
-                            var vYA  = parseInt(vData["properties"]["_iconAnchor"][1], 10);
-       
-                            var oImg              = new Image();
-                    			oImg.crossOrigin  = "anonymous";
-                                oImg.alt          = (vX - vXA) + "," + (vY - vYA);
-                                oImg.style.width  = vW + "px";
-                                oImg.style.height = vH + "px";
-                                oImg.onload = function(){
-                                    var vPos = this.alt.split(",");
-                                    if(vPos.length == 2){
-                                        var vPosX = vPos[0];
-                                        var vPosY = vPos[1];
-                                        var vW    = this.style.width .replace("px", "");
-                                        var vH    = this.style.height.replace("px", "");
+                        if(vDataGeometryArray.length >= 2){
+                            /*-------------------------------------------------------------------------------------------------------*/
+                            if(     vData.properties["_markerType"] == "Font"){
+                                var vDataGeometryLon = parseFloat(vDataGeometryArray[0]);
+                                var vDataGeometryLat = parseFloat(vDataGeometryArray[1]);
 
-                                        oCanvas.drawImage(this, vPosX, vPosY, vW, vH);
+                                var vX        = LoadLayers_Vectors_2PX(vDataGeometryLon, vRange_Lon_L, vDeg2PxX, "lon");
+                                var vY        = LoadLayers_Vectors_2PX(vDataGeometryLat, vRange_Lat_T, vDeg2PxY, "lat");
+                                var vXA       = 0;
+                                var vYA       = 0;
 
-                                        vVectorsN++;
+                                var vText              = vData["properties"]["_fontText"];
+                                var vTextFontWight     = vData["properties"]["_fontWeight"];
+                                var vTextFontSize      = vData["properties"]["_fontSize"];
+                                var vTextFontFamily    = vData["properties"]["_fontFamily"];
+                                var vTextFontColor     = vData["properties"]["_fontColor"];
+                                var vTextFontWriteMode = vData["properties"]["_fontWriteMode"];
+                                var vRotate            = parseFloat(vData["properties"]["_rotate"]);
+                                var vShadow            = vData["properties"]["_Shadow"];
+                                var vShadowSize        = vData["properties"]["_Shadow_size"];
+                                var vShadowFontColor   = vData["properties"]["_Shadow_fontColor"];
+
+                                vXA = 0; if(vData["properties"]["_anchorL"] != null){ vXA = vData["properties"]["_anchorL"]; }
+                                vYA = 0; if(vData["properties"]["_anchorT"] != null){ vYA = vData["properties"]["_anchorT"]; }
+
+                                var nTextMax = 1;
+                                if(vShadow){
+                                    nTextMax = 2;
+                                }
+                                for(var nText = 0; nText < nTextMax; nText++){
+                                    oCanvas.beginPath();
+
+                                    oCanvas.lineWidth = 1.0;
+                                    if(vShadow){
+                                        if(nText == 0){
+                                            oCanvas.lineWidth   = vShadowSize;
+                                            oCanvas.strokeStyle = vShadowFontColor;
+                                        }
                                     }
-                                };
-                                oImg.onerror = function(){
-                                    vVectorsN++;
-                                };
-                                oImg.src = vURL;
-                                vVectors++;
-                        }
-                        /*-------------------------------------------------------------------------------------------------------*/
-                        else if(vData.properties["_markerType"] == "Circle"       ||
-                                vData.properties["_markerType"] == "CircleMarker"    
-                        ){
-                            var vDataGeometryLon = parseFloat(vDataGeometry[0]);
-                            var vDataGeometryLat = parseFloat(vDataGeometry[1]);
 
-                            var vR = vData["properties"]["_radius"];
-                            if(vData.properties["_markerType"] == "Circle"){
-                                vR = ConverUnit(vDataGeometryLat, vZ, parseFloat(vR), "m", "px");
+                                    oCanvas.font        = vTextFontWight + " " + vTextFontSize + "px " + vTextFontFamily;
+                                    oCanvas.fillStyle   = vTextFontColor;
+                                    if(vTextFontWriteMode == "vertical"){
+                                        oCanvas.fillTextVertical(vText, (vX - vXA), (vY - vYA) + vTextFontSize, vRotate);
+                                    }
+                                    else{
+                                        oCanvas.save();
+
+                                        if(vRotate > 0){
+                                            oCanvas.translate(vX, vY);
+                                            oCanvas.rotate(vRotate * Math.PI / 180);
+                                            oCanvas.translate(-vX, -vY);
+                                        }
+                                        if(oCanvas.lineWidth == 1){
+                                            oCanvas.fillText(vText, (vX - vXA), (vY - vYA) + vTextFontSize);
+                                        }
+                                        else{                                        
+                                            oCanvas.strokeText(vText, (vX - vXA), (vY - vYA) + vTextFontSize);
+                                        }
+
+                                        oCanvas.restore();
+                                    }
+                                }
                             }
-                                vR = parseInt(vR);
-                            var vX = LoadLayers_Vectors_2PX(vDataGeometryLon, vRange_Lon_L, vDeg2PxX, "lon");
-                            var vY = LoadLayers_Vectors_2PX(vDataGeometryLat, vRange_Lat_T, vDeg2PxY, "lat");
+                            else if(vData.properties["_markerType"] == "DivIcon"){
+                                var vDataGeometryLon = parseFloat(vDataGeometryArray[0]);
+                                var vDataGeometryLat = parseFloat(vDataGeometryArray[1]);
+                                var vX        = LoadLayers_Vectors_2PX(vDataGeometryLon, vRange_Lon_L, vDeg2PxX, "lon");
+                                var vY        = LoadLayers_Vectors_2PX(vDataGeometryLat, vRange_Lat_T, vDeg2PxY, "lat");
+                                var vXA       = 0; if(vData["properties"]["_iconAnchor"] != null){ vXA = parseInt(vData["properties"]["_iconAnchor"][0], 10); }
+                                var vYA       = 0; if(vData["properties"]["_iconAnchor"] != null){ vYA = parseInt(vData["properties"]["_iconAnchor"][1], 10); }
+                                var vText     = vData["properties"]["_html"];
+                                if(vVectorPointDivIcon == "HTML2CANVAS"){
+                                    if(vVectorHTML.v == null){
+                                        vVectorHTML.v = new Array();
+                                    }
+                                    if(vVectorHTML.o == null){
+                                        vVectorHTML.o                    = document.body;
+                                        vVectorHTML.oCanvas              = oCanvas;
+                                        vVectorHTML.oDiv                 = document.createElement("div");
+                                        vVectorHTML.oDiv.style.display   = "block";
+                                        vVectorHTML.oDiv.style.position  = "absolute";
+                                        vVectorHTML.oDiv.style.top       = (-vVectorPointDivIcon_SizeW - 10) + "px";
+                                        vVectorHTML.oDiv.style.left      = (-vVectorPointDivIcon_SizeH - 10) + "px";
+                                        vVectorHTML.o.appendChild(vVectorHTML.oDiv);
+                                        vVectorHTML.oIFrame              = document.createElement("iframe");
+                                        vVectorHTML.oIFrame.style.width  = vVectorPointDivIcon_SizeW + "px";
+                                        vVectorHTML.oIFrame.style.height = vVectorPointDivIcon_SizeH + "px";
+                                        vVectorHTML.oDiv.appendChild(vVectorHTML.oIFrame);
+                                    }
 
-                            if(vData["properties"]["_fillColor"] != null && vData["properties"]["_fillOpacity"] != null){
-                                var vStyleColor   = LoadLayers_Vevtors_PropertiesColor(vData["properties"]["_fillColor"]);
-                                var vStyleOpacity = parseFloat(vData["properties"]["_fillOpacity"]);
+                                    var v = {
+                                          x    : (vX - vXA)
+                                        , y    : (vY - vYA)
+                                        , vUrl : vUrl
+                                        , src  : vData
+                                        , HTML : vText
+                                    }
 
-                                oCanvas.beginPath();
-                                oCanvas.fillStyle = "rgba(" + vStyleColor.r + "," + vStyleColor.g + "," + vStyleColor.b + "," + vStyleOpacity + ")";
-                                oCanvas.arc(vX, vY, vR, 0, Math.PI*2, false);
-                                oCanvas.fill();
+                                    vVectorHTML.v.push(v);
+                                    vVectors++;
+                                }
+                                else{
+                                        vText     = $('<div>').html(vText).text();
+                                    var vTextSize = vRPX * vVectorPointDivIcon_StyleFontSize;
+
+                                    oCanvas.beginPath();
+                                    oCanvas.font= vVectorPointDivIcon_StyleFontWeight + " " + vTextSize + "px " + vVectorPointDivIcon_StyleFontFamily;
+                                    oCanvas.fillStyle   = '#000000';
+                                    oCanvas.fillText(vText, (vX - vXA), (vY - vYA) + vTextSize);
+                                }
                             }
-                            if(vData["properties"]["_color"] != null && vData["properties"]["_opacity"] != null){
-                                var vStyleColor   = LoadLayers_Vevtors_PropertiesColor(vData["properties"]["_color"]);
-                                var vStyleOpacity = parseFloat(vData["properties"]["_opacity"]);
-                                var vStyleWeight  = parseInt(vData["properties"]["_weight"]);
+                            /*-------------------------------------------------------------------------------------------------------*/
+                            else if(vData.properties["_markerType"] == "Icon"){
+                                var vDataGeometryLon = parseFloat(vDataGeometryArray[0]);
+                                var vDataGeometryLat = parseFloat(vDataGeometryArray[1]);
 
-                                oCanvas.beginPath();
-                                oCanvas.lineWidth = vStyleWeight;
-                                oCanvas.strokeStyle = "rgba(" + vStyleColor.r + "," + vStyleColor.g + "," + vStyleColor.b + "," + vStyleOpacity + ")";
-                                oCanvas.arc(vX, vY, vR, Math.PI*2, false);
-                                oCanvas.stroke();
+                                var vX   = LoadLayers_Vectors_2PX(vDataGeometryLon, vRange_Lon_L, vDeg2PxX, "lon");
+                                var vY   = LoadLayers_Vectors_2PX(vDataGeometryLat, vRange_Lat_T, vDeg2PxY, "lat");
+                                var vURL = vData["properties"]["_iconUrl"];
+                                var vW   = 10; if(vData["properties"]["_iconSize"]   != null){ vW  = Math.floor(vRPX * parseInt(vData["properties"]["_iconSize"][0])); }
+                                var vH   = 10; if(vData["properties"]["_iconSize"]   != null){ vH  = Math.floor(vRPX * parseInt(vData["properties"]["_iconSize"][1])); }
+                                var vXA  =  0; if(vData["properties"]["_iconAnchor"] != null){ vXA = parseInt(vData["properties"]["_iconAnchor"][0], 10); }
+                                var vYA  =  0; if(vData["properties"]["_iconAnchor"] != null){ vYA = parseInt(vData["properties"]["_iconAnchor"][1], 10); }
+       
+                                var vImgOpacity = 1.0;
+                                if(vUrl != null){
+                                    vImgOpacity = vUrl.opacity;
+                                }
+
+                                var oImg              = new Image();
+                    			    oImg.crossOrigin  = "anonymous";
+                                    oImg.alt          = (vX - vXA) + "," + (vY - vYA) + "," + vImgOpacity;
+                                    oImg.style.width  = vW + "px";
+                                    oImg.style.height = vH + "px";
+                                    oImg.onload = function(){
+                                        var vPos = this.alt.split(",");
+                                        if(vPos.length == 3){
+                                            var vPosX    = vPos[0];
+                                            var vPosY    = vPos[1];
+                                            var vOpacity = vPos[2];
+                                            var vW    = this.style.width .replace("px", "");
+                                            var vH    = this.style.height.replace("px", "");
+
+                                            oCanvas.globalAlpha = vOpacity;
+                                            oCanvas.drawImage(this, vPosX, vPosY, vW, vH);
+                                            oCanvas.globalAlpha = 1.0;
+
+                                            vVectorsN++;
+                                        }
+                                    };
+                                    oImg.onerror = function(){
+                                        vVectorsN++;
+                                    };
+                                    oImg.src = vURL;
+                                    vVectors++;
+                            }
+                            /*-------------------------------------------------------------------------------------------------------*/
+                            else if(vData.properties["_markerType"] == "Circle"       ||
+                                    vData.properties["_markerType"] == "CircleMarker"    
+                            ){
+                                var vDataGeometryLon = parseFloat(vDataGeometryArray[0]);
+                                var vDataGeometryLat = parseFloat(vDataGeometryArray[1]);
+
+                                var vR = vData["properties"]["_radius"];
+                                if(vData.properties["_markerType"] == "Circle"){
+                                    vR = ConverUnit(vDataGeometryLat, vZ, parseFloat(vR), "m", "px");
+                                }
+                                    vR = parseInt(vR);
+                                var vX = LoadLayers_Vectors_2PX(vDataGeometryLon, vRange_Lon_L, vDeg2PxX, "lon");
+                                var vY = LoadLayers_Vectors_2PX(vDataGeometryLat, vRange_Lat_T, vDeg2PxY, "lat");
+
+                                if(vData["properties"]["_fillColor"] != null && vData["properties"]["_fillOpacity"] != null){
+                                    var vStyleColor   = LoadLayers_Vevtors_PropertiesColor(vData["properties"]["_fillColor"]);
+                                    var vStyleOpacity = parseFloat(vData["properties"]["_fillOpacity"]);
+
+                                    oCanvas.beginPath();
+                                    oCanvas.fillStyle = "rgba(" + vStyleColor.r + "," + vStyleColor.g + "," + vStyleColor.b + "," + vStyleOpacity + ")";
+                                    oCanvas.arc(vX, vY, vR, 0, Math.PI*2, false);
+                                    oCanvas.fill();
+                                }
+                                if(vData["properties"]["_color"] != null && vData["properties"]["_opacity"] != null){
+                                    var vStyleColor   = LoadLayers_Vevtors_PropertiesColor(vData["properties"]["_color"]);
+                                    var vStyleOpacity = parseFloat(vData["properties"]["_opacity"]);
+                                    var vStyleWeight  = parseInt(vData["properties"]["_weight"]);
+
+                                    oCanvas.beginPath();
+                                    oCanvas.lineWidth = vStyleWeight;
+                                    oCanvas.strokeStyle = "rgba(" + vStyleColor.r + "," + vStyleColor.g + "," + vStyleColor.b + "," + vStyleOpacity + ")";
+                                    oCanvas.arc(vX, vY, vR, Math.PI*2, false);
+                                    oCanvas.stroke();
+                                }
                             }
                         }
                     }
                 }
                 /*-------------------------------------------------------------------------------------------------------*/
-                else if(vDataType == "LineString" || vDataType == "Polygon"){
+                else if(vDataType == "LineString" || vDataType == "MultiLineString" || vDataType == "Polygon" || vDataType == "MultiPolygon"){
                     var vDataGeometry = vData["geometry"]["coordinates"];
                     if(vDataGeometry.length >= 1){
                         var nFigIni = 0;
-                        if(vDataType == "LineString"){
+                        if(vDataType == "LineString" || vDataType == "MultiLineString"){
                             nFigIni = 1;
                         }
                         for(var nFig = nFigIni; nFig < 2; nFig++){
@@ -2104,11 +2541,16 @@ function LoadLayers_Vectors(oCanvas, oData){
                                 if(vData["properties"]["_fillColor"] != null && vData["properties"]["_fillOpacity"] != null){
                                     var vStyleColor   = LoadLayers_Vevtors_PropertiesColor(vData["properties"]["_fillColor"]);
                                     var vStyleOpacity = parseFloat(vData["properties"]["_fillOpacity"]);
-
                                     oCanvas.fillStyle = "rgba(" + vStyleColor.r + "," + vStyleColor.g + "," + vStyleColor.b + "," + vStyleOpacity + ")";
                                 }
                             }
                             else{
+                                if(vData["properties"]["_stroke"] != null){
+                                    if(vData["properties"]["_stroke"] == 0){
+                                        break;
+                                    }
+                                }
+
                                 if(vData["properties"]["_color"] != null && vData["properties"]["_opacity"] != null){
                                     var vStyleColor   = LoadLayers_Vevtors_PropertiesColor(vData["properties"]["_color"]);
                                     var vStyleOpacity = parseFloat(vData["properties"]["_opacity"]);
@@ -2121,50 +2563,68 @@ function LoadLayers_Vectors(oCanvas, oData){
 
 
                             var fMove = true;
-                            var nGeometryLen = 1;
-                            if(vDataType == "Polygon"){
-                                nGeometryLen = vDataGeometry.length;
+                            var nGeometryMax_Multi = 1;
+                            if(vDataType == "MultiPolygon" || vDataType == "MultiLineString"){
+                                nGeometryMax_Multi = vDataGeometry.length;
                             }
-                            for(var nGeometry = nGeometryLen; nGeometry != 0; nGeometry--){
-                                var vDataGeometryArray = vDataGeometry;
-                                if(vDataType == "Polygon"){
-                                    vDataGeometryArray = vDataGeometry[nGeometry - 1];
 
-                                    if(nFig == 1){
-                                        oCanvas.beginPath();
-                                    }
-
+                            for(var nGeometryMulti = 0; nGeometryMulti < nGeometryMax_Multi; nGeometryMulti++){
+                                var nGeometryMax = 1;
+                                if(   vDataType == "Polygon"){
+                                    nGeometryMax = vDataGeometry.length;
+                                }
+                                else if(vDataType == "MultiPolygon" || vDataType == "MultiLineString"){
+                                    nGeometryMax = vDataGeometry[nGeometryMulti].length;
                                 }
 
+                                for(var nGeometry = nGeometryMax; nGeometry != 0; nGeometry--){
+                                    var vDataGeometryArray = vDataGeometry;
+                                    if(vDataType == "Polygon"){
+                                        vDataGeometryArray = vDataGeometry[nGeometry - 1];
+                                        if(nFig == 0){
+                                            oCanvas.beginPath();
+                                        }
 
-                                for(var nDataGeometry = 0; nDataGeometry < vDataGeometryArray.length; nDataGeometry++){
-                                    if(vDataGeometryArray[nDataGeometry].length >= 2){
-                                        var vDataGeometryLon = parseFloat(vDataGeometryArray[nDataGeometry][0]);
-                                        var vDataGeometryLat = parseFloat(vDataGeometryArray[nDataGeometry][1]);
-                                        var vX = LoadLayers_Vectors_2PX(vDataGeometryLon, vRange_Lon_L, vDeg2PxX, "lon");
-                                        var vY = LoadLayers_Vectors_2PX(vDataGeometryLat, vRange_Lat_T, vDeg2PxY, "lat");
-                                        if(fMove){
-                                            oCanvas.moveTo(vX, vY);
-                                            fMove = false;
+                                    }
+                                    else if(vDataType == "MultiPolygon"){
+                                        vDataGeometryArray = vDataGeometry[nGeometryMulti][nGeometry - 1];
+                                        if(nFig == 0){
+                                            oCanvas.beginPath();
+                                        }
+                                    }
+                                    else if(vDataType == "MultiLineString"){
+                                        vDataGeometryArray = vDataGeometry[nGeometryMulti];
+                                    }
+
+                                    for(var nDataGeometry = 0; nDataGeometry < vDataGeometryArray.length; nDataGeometry++){
+                                        if(vDataGeometryArray[nDataGeometry].length >= 2){
+                                            var vDataGeometryLon = parseFloat(vDataGeometryArray[nDataGeometry][0]);
+                                            var vDataGeometryLat = parseFloat(vDataGeometryArray[nDataGeometry][1]);
+                                            var vX = LoadLayers_Vectors_2PX(vDataGeometryLon, vRange_Lon_L, vDeg2PxX, "lon");
+                                            var vY = LoadLayers_Vectors_2PX(vDataGeometryLat, vRange_Lat_T, vDeg2PxY, "lat");
+                                            if(fMove){
+                                                oCanvas.moveTo(vX, vY);
+                                                fMove = false;
+                                            }
+                                            else{
+                                                oCanvas.lineTo(vX, vY);
+                                            }
+                                        }
+                                    }
+
+                                    if(vDataType == "LineString" || vDataType == "MultiLineString"){
+                                        oCanvas.stroke();
+                                    }
+                                    else if(vDataType == "Polygon" || vDataType == "MultiPolygon"){
+                                        oCanvas.closePath(); 
+                                        if(nGeometry - 1 == 0){
+                                            if(nFig == 0){ oCanvas.fill();   }                       
+                                            else         { oCanvas.stroke(); }
                                         }
                                         else{
-                                            oCanvas.lineTo(vX, vY);
+                                            if(nFig == 0){                   }
+                                            else         { oCanvas.stroke(); }
                                         }
-                                    }
-                                }
-
-                                if(vDataType == "LineString"){
-                                    oCanvas.stroke();
-                                }
-                                else if(vDataType == "Polygon"){
-                                    oCanvas.closePath(); 
-                                    if(nGeometry - 1 == 0){
-                                        if(nFig == 0){ oCanvas.fill();   }                       
-                                        else         { oCanvas.stroke(); }
-                                    }
-                                    else{
-                                        if(nFig == 0){                   }
-                                        else         { oCanvas.stroke(); }
                                     }
                                 }
                             }
@@ -2175,15 +2635,33 @@ function LoadLayers_Vectors(oCanvas, oData){
             }
             catch(e){
             }
+
         }
     }
     catch(e){
     }
+    oCanvas.globalAlpha = 1.0;
 
-    return LoadLayers_Vectors_HTML();
+    setTimeout(
+        function(){
+            LoadLayers_Vectors_HTML();
+        }
+    , 100);
+
+    var ret = false;
+    if(vVectorHTML.v != null){
+        ret = true;
+    }    
+    return ret;
 };
 
 function LoadLayers_Vectors_2PX(v, gen, rpx, t){
+    if(t == "lat"){
+        var vZ = parseInt(args["z"], 10);
+        v   = LoadLayers_Vectors_MercaY(v  , vZ);
+        gen = LoadLayers_Vectors_MercaY(gen, vZ);
+    }
+
     var l = v - gen;
     if(t == "lat"){
         if(v < gen){
@@ -2195,6 +2673,20 @@ function LoadLayers_Vectors_2PX(v, gen, rpx, t){
     }
 
     return Math.floor(l * rpx);
+};
+
+function LoadLayers_Vectors_MercaY(y, z){
+    var PI = 3.14159265358979323846264338327950288419716939937510;
+    var th = PI * z / 180;
+    var Merc_Scale_Factor = 1.0 * Math.cos(th);
+
+    var phi = PI * y / 180;
+    var tt = Math.tan(PI / 4.0 + phi / 2.0);
+
+    var RMAX = 6378137.0;
+
+    return Merc_Scale_Factor * RMAX * Math.log(tt);
+
 };
 
 function LoadLayers_Vectors_HTML(){
@@ -2211,18 +2703,25 @@ function LoadLayers_Vectors_HTML(){
                  vVectorHTML.oIFrame.contentWindow.document.body
                 ,{
                     onrendered: function(canvas){
+                        var vImgOpacity = 1.0;
+                        if(v.vUrl != null){
+                            vImgOpacity = v.vUrl.opacity;
+                        }
+
                         var oImg             = new Image();
                             oImg.crossOrigin = "anonymous";
-                            oImg.alt         = v.x + "," + v.y;
+                            oImg.alt         = v.x + "," + v.y + "," + vImgOpacity;
                         oImg.onload = function()
                         {
                             var vPos = this.alt.split(",");
-                            if(vPos.length == 2){
-                                var vPosX = vPos[0];
-                                var vPosY = vPos[1];
-                                vVectorHTML.oCanvas.drawImage(this, vPosX, vPosY);
+                            if(vPos.length == 3){
+                                var vPosX    = vPos[0];
+                                var vPosY    = vPos[1];
+                                var vOpacity = vPos[2];
+                                vVectorHTML.oCanvas.globalAlpha = vOpacity;
+                                vVectorHTML.oCanvas.drawImage(this, vPosX, vPosY, vVectorPointDivIcon_SizeW, vVectorPointDivIcon_SizeH);
+                                vVectorHTML.oCanvas.globalAlpha = 1.0;
                             }
-
 
                             vVectorHTML.v.shift();
                             vVectorsN++;
@@ -2298,7 +2797,6 @@ function LoadLayers_Dem_Trim(v, n, nXS, nXE, nYS, nYE){
 
     var nY_S = nYS;
     var nY_E = n - nYE;
-
     var vY = new Array();
     for(var nY = nY_S; nY < nY_E; nY++){
         var nTrim_S = (nY * n) + (nXS);
@@ -2317,7 +2815,7 @@ function LoadLayers_Dem_Trim(v, n, nXS, nXE, nYS, nYE){
  * ・頂点配列を257x257で固定
  * ・縦横257列目は256列目をコピー
  */
-function LoadLayers_DemNormarize(v, nTilesX, nTilesY){
+function LoadLayers_DemNormarize(v, nTilesX, nTilesY, pxTile){
     vSceneMesh_ZMin = null;
 
 	var nTilesOTS = nTilesX;
@@ -2331,8 +2829,8 @@ function LoadLayers_DemNormarize(v, nTilesX, nTilesY){
             nz = ny * 257 + nx;
 			if     (nx == 256){ ret[nz] = ret[ ny      * 257 + nx - 1]; }
 			else if(ny == 256){	ret[nz] = ret[(ny - 1) * 257 + nx    ]; }
-			else              {	
-                ret[nz] = v[ny * nTilesOTS * 256 * nTilesOTS + nx * nTilesOTS];
+			else              {
+                ret[nz] = v[ny * nTilesOTS * pxTile * nTilesOTS + nx * nTilesOTS];
 			}
 
             if(vSceneMesh_ZMin == null){
@@ -2390,7 +2888,6 @@ function LoadScene(){
 
     var material = null;
     if(oTextureCanvas != null){
-//alert(THREE.ImageUtils.crossOrigin);
 	    var texture = new THREE.Texture(oTextureCanvas);
 	    texture.needsUpdate = true;
         texture.minFilter = THREE.LinearFilter;
@@ -2538,7 +3035,7 @@ function SceneGeometryZ_Value(){
 		vSceneMeshZRate = parseFloat(strA);
 
 		SceneGeometryZ();
-        //??-Error
+
 		//SceneRender();
 
 		$("#slider_ratioZ").slider( "option", "value", vSceneMeshZRate);
