@@ -93,49 +93,59 @@
         onMapMove: function() {
             // bail if we're moving the map (updating from a hash),
             // or if the map is not yet loaded
-
             if (this.movingMap || !this.map._loaded) {
                 return false;
             }
 
+            var f    = false;
             var hash = this.formatHash(this.map);
-            if(this.callback != null){
+            if(this.callback != null){                
                 try{
                     hash = this.callback("moveend", this.callback_o, hash);
                 }
                 catch(e){
                 }
+                f = true;
             }
 
-            if (this.lastHash != hash) {
-                //alert( location );
-                //alert( hash );
+            if(this.lastHash == null){
+                f    = true;
+                hash = location.hash;
+            }
 
-                if (this.options.useReplace) {
-                    location.replace(hash);
-                } else {
-                    location.hash = hash;
+            if(f){
+                if (this.lastHash != hash) {
+                    if(location.hash == ""){
+                        location.hash = hash;
+                    }
+                    else{
+                        location.replace(hash);
+                    }
+                    this.lastHash = hash;
                 }
-                this.lastHash = hash;
             }
         },
 
         movingMap: false,
         update: function() {
             var hash = location.hash;
-            if (hash === this.lastHash) {
+            if(hash === this.lastHash){
                 return;
             }
-            var parsed = this.parseHash(hash);
-            if (parsed) {
-                this.movingMap = true;
-                this.map.setView(parsed.center, parsed.zoom);
 
-                this.movingMap = false;
-            } else {
-                this.onMapMove(this.map);
+            var hash_cur = ""; if(hash          !=""){ var hash_cur_ary = hash         .split("/&"); if(hash_cur_ary.length > 1){ hash_cur = hash_cur_ary[0]; } }
+            var hash_prv = ""; if(this.lastHash !=""){ var hash_prv_ary = this.lastHash.split("/&"); if(hash_prv_ary.length > 1){ hash_prv = hash_prv_ary[0]; } }
+            if(hash_cur != hash_prv){
+                var parsed = this.parseHash(hash);
+                if (parsed) {
+                    this.movingMap = true;
+                    this.map.setView(parsed.center, parsed.zoom);
+
+                    this.movingMap = false;
+                } else {
+                    this.onMapMove(this.map);
+                }
             }
-
 
             if(this.callback != null){
                 try{
