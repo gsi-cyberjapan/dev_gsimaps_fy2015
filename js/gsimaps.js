@@ -2848,7 +2848,7 @@ GSI.Draw.Polygon = L.Draw.Polygon.extend( {
 			}
 			else
 			{
-				result = ( area / 1000000 ).toFixed(3) + ' &sup2;';
+				result = ( area / 1000000 ).toFixed(3) + ' km&sup2;';
 			}
 		}
 
@@ -2919,14 +2919,11 @@ GSI.Links.getURL = function( id, center, z, bounds){
 			return null;
 		}
         var args = "";
-        args += "?z="           + z;
-        args += "&lat="         + center.lat;
-        args += "&lon="         + center.lng;
-        args += "&lat_lt="      + bounds.getNorthEast().lat;
-        args += "&lon_lt="      + bounds.getSouthWest().lng;
-        args += "&lat_rb="      + bounds.getSouthWest().lat;
-        args += "&lon_rb="      + bounds.getNorthEast().lng;
-        args += "&"             + GSI.GLOBALS.pageStateManager.getLayersQueryString({visibleOnly:true})
+        args += "?z="   + z;
+        args += "&lat=" + center.lat;
+        args += "&lon=" + center.lng;
+        args += "&pxsize=2048";
+        args += "&"     + GSI.GLOBALS.pageStateManager.getLayersQueryString({visibleOnly:true})
 
         return "./index_3d.html" + args;
 	}
@@ -8897,21 +8894,23 @@ GSI.ViewListDialog = GSI.Dialog.extend( {
 		var cocoVisible = this.cocoTileLayer.getVisible();
 
         var vClass = 'item_frame';
+        var vClassTitle = 'title';
         var fBaseMap = false;
         if(item.parent && item.parent.title_sys && item.parent.title_sys == CONFIG.layerBaseFolderSYS){
             vClass   = 'item_frame_fixed';
+            vClassTitle = 'title_base';
             fBaseMap = true;
         }
         a.addClass( vClass );
 
 		var frame = $( '<div>' );
-		if ( isTile ) frame.addClass( 'tile' );
+		if ( isTile ) frame.addClass( 'tille' );
 		li.data( { 'data' : item } );
 
         a.append( frame );
         
 		// タイトル
-		var title = $( '<div>' ).addClass( 'title' );
+		var title = $( '<div>' ).addClass( vClassTitle );
 		var icon = item.iconUrl;
         if(icon){
 		    title.css(
@@ -9020,6 +9019,8 @@ GSI.ViewListDialog = GSI.Dialog.extend( {
     },
 	_initializeList : function( liRefresh )
 	{
+        this._hideItemTooltip();
+
 		var list     = this.mapLayerList.getList();
 		var tileList = this.mapLayerList.getTileList();
 
@@ -9222,7 +9223,17 @@ GSI.ViewListDialog = GSI.Dialog.extend( {
 					if ( parents[i] == this._itemTooltip[0] ) return;
 				}
 
-				this._hideItemTooltip();
+                var fToopTop = false;
+                if($(event.target).is(".switch") || $(event.target).is(".inner") || $(event.target).is(".btn")){
+                    fToopTop = true;
+                }
+
+                if(!fToopTop){
+                    if(!$(event.target).is(".description_btn")){
+                        this._curItem = undefined;
+                    }
+				    this._hideItemTooltip();
+                }
 				
 				if ( event.type == "scroll" )
 				{
@@ -9252,6 +9263,7 @@ GSI.ViewListDialog = GSI.Dialog.extend( {
 		if ( this._itemTooltip )
 		{
 			this._itemTooltip.stop().hide();
+            this._toolTipViewCounter = 0;
 		}
 	},
     _opacity : function(a, opacity, c)
@@ -9326,6 +9338,8 @@ GSI.ViewListDialog = GSI.Dialog.extend( {
         if (eUpTime - this.eDownTime < this.eDownMS) {
             this._opacity(a, opacity, c);
         }
+
+        this.eDownTime = null;
     },
 	_gray_scale : function(a, sw )
 	{
@@ -10088,8 +10102,10 @@ GSI.HashOptions = L.Class.extend( {
 		this.map.on('movestart', this._onMapMoveStart);
 		this.map.on('moveend'  , this._onMapMoveEnd  );
 
+        this.vLD                = 3000;
         this.oTM                = null;
         this.vTM                = 1500;
+        this.nTM                = 0;
         this.vHash              = "";
         this.vHashOptions       = "";
         this.eHashChange        = false;
@@ -10140,20 +10156,31 @@ GSI.HashOptions = L.Class.extend( {
             var that = this;
             this.oTM = setInterval(
                 function(){
+                    that.nTM += that.vTM;
+                    if(that.nTM > that.vLD){
+                        that.nTM = that.vLD;
+                    }
                     that.HashCreate();
                 }
             , this.vTM);
         }
     },
-    HashCreate : function(){
+   HashCreate : function(){
         var hash          = location.hash;
-        var hash_location = GSI.GLOBALS.hash.formatHash(this.map);
+        var hash_location = "";
         var hash_options  = this.HashCreateProc();
 
         if(hash.indexOf("/&") == -1){
+            hash_location     = GSI.GLOBALS.hash.formatHash(this.map);
+
             this.vHash        = "";
             this.vHashOptions = "";
         }
+        else{
+            var hash_ary = hash.split("/&");
+            hash_location =        hash_ary[0];
+        }
+
         hash = hash_location + hash_options;
         if(!this.eHashChange && this.vHash != hash){
             location.replace(hash);
@@ -10235,6 +10262,26 @@ GSI.HashOptions = L.Class.extend( {
                     hash += "&" + key + '=' + queryParams[key];
                 }
 		    }
+
+            if(this.nTM < this.vLD){
+                var vHash = location.hash.split("/&");
+                if(vHash.length > 1){
+                    if(    vHash[1].indexOf("base=") != -1
+                        || vHash[1].indexOf("ls="  ) != -1
+                        || vHash[1].indexOf("disp=") != -1
+                        || vHash[1].indexOf("lcd=" ) != -1
+                    ){
+                        if(!(   this.vHash.indexOf("base=") != -1
+                             || this.vHash.indexOf("ls="  ) != -1
+                             || this.vHash.indexOf("disp=") != -1
+                             || this.vHash.indexOf("lcd=" ) != -1
+                            )
+                        ){
+                            hash = "/&" + vHash[1];
+                        }
+                    }
+                }
+            }
         }
 
         return hash;
@@ -19175,9 +19222,7 @@ function initialize_proc()
 
             initialize_proc_map();
 
-            if(CONFIG.layers.length == 0){
-                f = true;
-            }
+            f = true;
         }
         else{
             f = true;
