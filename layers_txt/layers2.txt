@@ -3174,10 +3174,10 @@
                   "entries": [
                     {
                       "type": "Layer",
-                      "id": "kiban_koushin2016_01",
+                      "id": "fgd_update_2016_01",
                       "title": "1月更新",
                       "iconUrl": "",
-                      "url": "http://cyberjapandata.gsi.go.jp/xyz/fgd_update/2016-01/{z}/{x}/{y}.png",
+                      "url": "http://cyberjapandata.gsi.go.jp/xyz/fgd_update_2016_01/{z}/{x}/{y}.png",
                       "subdomains": "",
                       "attribution": "",
                       "cocotile": true,
@@ -3210,7 +3210,7 @@
                     },
                     {
                       "type": "Layer",
-                      "id": "fgd_update_2015_01",
+                      "id": "fgd_update_2015_04",
                       "title": "4月更新",
                       "iconUrl": "",
                       "url": "http://cyberjapandata.gsi.go.jp/xyz/fgd_update_2015_04/{z}/{x}/{y}.png",
@@ -3224,7 +3224,7 @@
                     },
                     {
                       "type": "Layer",
-                      "id": "fgd_update_2015_01",
+                      "id": "fgd_update_2015_07",
                       "title": "7月更新",
                       "iconUrl": "",
                       "url": "http://cyberjapandata.gsi.go.jp/xyz/fgd_update_2015_07/{z}/{x}/{y}.png",
@@ -3238,7 +3238,7 @@
                     },
                     {
                       "type": "Layer",
-                      "id": "fgd_update_2015_01",
+                      "id": "fgd_update_2015_10",
                       "title": "10月更新",
                       "iconUrl": "",
                       "url": "http://cyberjapandata.gsi.go.jp/xyz/fgd_update_2015_10/{z}/{x}/{y}.png",
