@@ -5732,7 +5732,7 @@ GSI.HelpDialog = GSI.Dialog.extend( {
 		} );
 		this.LinkFrameHr = $( '<hr>' );
 		this.Link = $( '<a>' ).attr( {
-			'href'	: 'http://163.42.60.180/kawamura/help/index.html',
+			'href'	: 'http://maps.gsi.go.jp/help/',
 			'target': '_blank',
 			'style'	: 'color:#000; text-decoration:none'
 		} );
