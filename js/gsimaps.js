@@ -28,8 +28,9 @@ CONFIG.layers = [
 	,'./layers_txt/layers3.txt'
 	,'./layers_txt/layers4.txt'
 	,'./layers_txt/layers5.txt'
-    , './layers_txt/layers_experimental.txt'
+    ,'./layers_txt/layers_experimental.txt'
 ];
+
 
 // トップメッセージ
 CONFIG.TOPMESSAGE = null;
@@ -11302,12 +11303,6 @@ GSI.LayersJSON = L.Class.extend( {
 
 		if ( this.currentFileIndex >= this._loadingData.length )
 		{
-            // ... [背景地図]を末尾へ
-            //var daba_base = null;
-            //if(this._data.length >= 1){
-            //    daba_base = this._data[this._data.length - 1];
-            //    this._data.pop();
-            //}
 			for ( var i=0; i<this._loadingData.length; i++ )
 			{
 				// concatは？
@@ -11316,10 +11311,6 @@ GSI.LayersJSON = L.Class.extend( {
 					this._data.push( this._loadingData[i].layers[j] );
 				}
 			}
-            // ... [背景地図]を末尾へ
-            //if(daba_base != null){
-            //    this._data.push(daba_base);
-            //}
 
 			this._loadingData = null;
 
