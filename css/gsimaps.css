@@ -2211,6 +2211,8 @@ form {
 
     -webkit-touch-callout:none;
     -webkit-user-select  :none;
+
+    cursor:pointer;
 }
 
 .viewlistdialog_ul li .closebtn::before
