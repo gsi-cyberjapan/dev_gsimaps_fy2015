@@ -168,9 +168,13 @@ var oWinDownload                        = null;
 function Init(iFrame){
     var oWin = window.opener;
     if(oWin != null){
-        if(oWin.CONFIG){
-            if(oWin.CONFIG.layerBase && oWin.CONFIG.layerBase.length > 0){ CONFIG.layerBase = oWin.CONFIG.layerBase; }
-            if(oWin.CONFIG.layers    && oWin.CONFIG.layers.length    > 0){ CONFIG.layers    = oWin.CONFIG.layers;    }
+        try{
+            if(oWin.CONFIG){
+                if(oWin.CONFIG.layerBase && oWin.CONFIG.layerBase.length > 0){ CONFIG.layerBase = oWin.CONFIG.layerBase; }
+                if(oWin.CONFIG.layers    && oWin.CONFIG.layers.length    > 0){ CONFIG.layers    = oWin.CONFIG.layers;    }
+            }
+        }
+        catch(e){
         }
     }
 
@@ -2112,7 +2116,8 @@ function LoadLayersProcVectorDataKML(data){
                     if(data_type){
                         var data_styleUrl = data.features[n].properties.styleUrl;
                         if(data_styleUrl && data_styleUrl != ""){
-                            var data_style = $(kml).find(data_styleUrl);
+                            var data_style_id = data_styleUrl.replace(/\./g, "\\\.");
+                            var data_style = $(kml).find(data_style_id);
                             if(data_style.length >= 0){
                                 data_style = data_style.eq(0);
                                 if(data_style){
@@ -2272,11 +2277,15 @@ function LoadLayersCanvas(oTextureCanvas_2D, vUrl, vTile, nx, ny, wTileImg, hTil
 function LoadLayers_VectorsOpener(oCanvas){
     var o = window.opener;
     if(o != null){
-        var v = o.Vectors();
-        if(v != null){
-            v.DataOpenner = true;
+        try{
+            var v = o.Vectors();
+            if(v != null){
+                v.DataOpenner = true;
 
-            LoadLayers_Vectors(oCanvas, v, null);
+                LoadLayers_Vectors(oCanvas, v, null);
+            }
+        }
+        catch(e){
         }
     }
 };
@@ -2460,7 +2469,6 @@ function LoadLayers_Vectors(oCanvas, oData, vUrl){
                                 if(vUrl != null){
                                     vImgOpacity = vUrl.opacity;
                                 }
-
                                 var oImg              = new Image();
                     			    oImg.crossOrigin  = "anonymous";
                                     oImg.alt          = (vX - vXA) + "," + (vY - vYA) + "," + vImgOpacity;
@@ -2567,7 +2575,6 @@ function LoadLayers_Vectors(oCanvas, oData, vUrl){
                             if(vDataType == "MultiPolygon" || vDataType == "MultiLineString"){
                                 nGeometryMax_Multi = vDataGeometry.length;
                             }
-
                             for(var nGeometryMulti = 0; nGeometryMulti < nGeometryMax_Multi; nGeometryMulti++){
                                 var nGeometryMax = 1;
                                 if(   vDataType == "Polygon"){
@@ -2576,12 +2583,11 @@ function LoadLayers_Vectors(oCanvas, oData, vUrl){
                                 else if(vDataType == "MultiPolygon" || vDataType == "MultiLineString"){
                                     nGeometryMax = vDataGeometry[nGeometryMulti].length;
                                 }
-
                                 for(var nGeometry = nGeometryMax; nGeometry != 0; nGeometry--){
                                     var vDataGeometryArray = vDataGeometry;
                                     if(vDataType == "Polygon"){
                                         vDataGeometryArray = vDataGeometry[nGeometry - 1];
-                                        if(nFig == 0){
+                                        if(nFig == 1){
                                             oCanvas.beginPath();
                                         }
 
