@@ -14277,6 +14277,15 @@ GSI.SakuzuListItem = L.Class.extend( {
 			}
 
 			// 円
+            if(radius){
+                if(this._editingType == GSI.SakuzuListItem.POINT_CIRCLE){
+                    this._editingEditingLayer._radius_px = radius;
+
+                    var o        = this._editingEditingLayer;
+                    var vLatLng  = o.getLatLng();
+                    radius  = GSI.Utils.ConverUnit(vLatLng.lat, GSI.GLOBALS.map.getZoom(), radius, "px", "m");
+                }
+            }
 			if ( this._editingEditingLayer.setRadius && radius ) this._editingEditingLayer.setRadius( radius );
 			if ( this._editingEditingLayer._mRadius && radius ) this._editingEditingLayer._mRadius = radius;
 			
@@ -14450,11 +14459,16 @@ GSI.SakuzuListItem = L.Class.extend( {
 			case GSI.SakuzuListItem.CIRCLE:
                 var latlng = layer.getLatLng();
                 var radius = layer.getRadius();
+                var radius_px = null;
                 if(layerType == GSI.SakuzuListItem.POINT_CIRCLE){
+                    radius_px = radius;
                     layer.getRadius()
                     radius = GSI.Utils.ConverUnit(latlng.lat, GSI.GLOBALS.map.getZoom(), radius, "px", "m");
                 }
-				result =L.circle(latlng, radius, layer.options );
+				result = L.circle(latlng, radius, layer.options );
+                if(radius_px != null){
+                    result._radius_px = radius_px;
+                }
 				break;
 
 			case GSI.SakuzuListItem.MULTILINESTRING:
@@ -14500,7 +14514,7 @@ GSI.SakuzuListItem = L.Class.extend( {
             Circle:_showLabel
             Circle:_hideLabel
             */
-            if(layer.getLabel && layer._showLabel){
+            if((layer.feature && layer.feature.propertiesl && layer.feature.properties._markerType == "CircleMarker") || (layer.getLabel && layer._showLabel)){
                 itemType = GSI.SakuzuListItem.POINT_CIRCLE;
             }
 		}
@@ -14594,6 +14608,7 @@ GSI.SakuzuListItem = L.Class.extend( {
 			this._editingBoundsRects = L.featureGroup().addTo( this._owner._map );
 		}
 
+		var f_fitBounds = true;
 		var layers = [];
 		this._getLayers( this._layer, layers );
 
@@ -14633,8 +14648,9 @@ GSI.SakuzuListItem = L.Class.extend( {
                 Circle:_showLabel
                 Circle:_hideLabel
                 */
-                if(layer.getLabel && layer._showLabel){
+                if((layer.feature && layer.feature.propertiesl && layer.feature.properties._markerType == "CircleMarker") || (layer.getLabel && layer._showLabel)){
                     radius = GSI.Utils.ConverUnit(latlng.lat, GSI.GLOBALS.map.getZoom(), radius, "px", "m");
+                    f_fitBounds = false;
                 }
 				var latRadius = ( radius / 40075017 * 360 );
 				var lngRadius = ( latRadius / Math.cos(L.LatLng.DEG_TO_RAD * latlng.lat) );
@@ -14696,7 +14712,9 @@ GSI.SakuzuListItem = L.Class.extend( {
 		{
 			try
 			{
-				this._owner._map.fitBounds( this._editingBoundsRects.getBounds() );
+                if(f_fitBounds){
+				    this._owner._map.fitBounds( this._editingBoundsRects.getBounds() );
+                }
 			}
 			catch( e ) {}
 		}
@@ -14735,7 +14753,7 @@ GSI.SakuzuListItem = L.Class.extend( {
                 Circle:_showLabel
                 Circle:_hideLabel
                 */
-                if(layer.getLabel && layer._showLabel){
+                if((layer.feature && layer.feature.propertiesl && layer.feature.properties._markerType == "CircleMarker") || (layer.getLabel && layer._showLabel)){                    
                     radius = GSI.Utils.ConverUnit(latlng.lat, GSI.GLOBALS.map.getZoom(), radius, "px", "m");
                 }
 				var latRadius = ( radius / 40075017 * 360 );
@@ -15071,7 +15089,7 @@ GSI.SakuzuListItem = L.Class.extend( {
 	},
 	editFinish : function()
 	{
-        this.ediFinish_CircleMarker();
+        this.editFinish_CircleMarker();
 
 		if (this.editMode == GSI.SakuzuListItem.NONE ) return;
 		
@@ -15102,14 +15120,17 @@ GSI.SakuzuListItem = L.Class.extend( {
 		this.editMode = GSI.SakuzuListItem.NONE;
 		this._owner.fire( 'change' );
 	},
-    ediFinish_CircleMarker : function()
+    editFinish_CircleMarker : function()
     {
         if(this._editingType == GSI.SakuzuListItem.POINT_CIRCLE){
-            var o        = this._editingEditingLayer;
-            var vLatLng  = o.getLatLng();
-            var vRadius  = GSI.Utils.ConverUnit(vLatLng.lat, GSI.GLOBALS.map.getZoom(), o.getRadius(), "m", "px");
-            var vOptions = o.options;
+            var o       = this._editingEditingLayer;
+            var vLatLng = o.getLatLng();
+            var vRadius = this._editingEditingLayer._radius_px;
+            if(!vRadius){
+                vRadius = GSI.Utils.ConverUnit(vLatLng.lat, GSI.GLOBALS.map.getZoom(), o.getRadius(), "m", "px");
+            }
 
+            var vOptions = o.options;
             var oMarker  = new L.circleMarker(vLatLng, vOptions);
             oMarker.setRadius(vRadius);
 
